@@ -1,0 +1,22 @@
+# 執行環境（每台機器自己產生）
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# 執行期資料：每個人自己的專案清單與歷史，不進版控
+data/
+logs/
+run/
+projects.json
+*.log
+
+# 憑證（絕不出貨）
+.env
+access_token.txt
+tunnel_url.txt
+
+# 編輯器 / 系統
+.DS_Store
+.idea/
+.vscode/

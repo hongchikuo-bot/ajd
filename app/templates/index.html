@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AJD">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/static/icon-192.png">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0f15" media="(prefers-color-scheme: dark)">
+<title>AJD · AI agents job dashboard</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header>
+  <div class="hd-top">
+    <h1>🛰 AJD</h1>
+    <button id="refresh" title="重新整理">↻</button>
+  </div>
+  <div class="hd-meta" id="hdMeta">載入中…</div>
+  <nav class="tabs">
+    <button class="tab active" data-view="overview">📋 總覽</button>
+    <button class="tab" data-view="projects">📁 專案</button>
+    <button class="tab" data-view="ideas">💡 想法<span class="badge" id="ideaBadge" hidden></span></button>
+    <button class="tab" data-view="history">📈 歷史</button>
+  </nav>
+</header>
+
+<main>
+  <section id="view-overview"></section>
+
+  <section id="view-projects" hidden>
+    <div class="seg" id="groupBy">
+      <button class="seg-b on" data-g="bot">🤖 依 bot</button>
+      <button class="seg-b" data-g="type">🏷 依型態</button>
+    </div>
+    <input id="projSearch" class="search" type="search" placeholder="搜尋專案名稱、型態、負責 bot…">
+    <div id="projList"></div>
+  </section>
+
+  <section id="view-project" hidden></section>
+
+  <section id="view-ideas" hidden>
+    <div class="composer">
+      <textarea id="ideaInput" rows="3" placeholder="突然想到什麼？先丟進來，不用想清楚…"></textarea>
+      <div class="composer-row">
+        <button class="btn-primary" id="ideaAdd">記下來</button>
+        <span class="hint" id="composerHint"></span>
+      </div>
+    </div>
+    <div id="ideaList"></div>
+  </section>
+
+  <section id="view-history" hidden></section>
+</main>
+
+<div id="detail" class="sheet" hidden>
+  <div class="sheet-inner" id="detailInner"></div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

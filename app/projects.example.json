@@ -1,0 +1,20 @@
+{
+  "_comment": "AJD 範例專案。使用者填入自己的路徑後，即可跑起自己的 dashboard。",
+  "_note": "通用化版本：不含個人資料、無機密 token、無敏感 link。",
+  "projects": {
+    "<YOUR_PROJECT_NAME>": {
+      "name": "<PROJEKT_NAMEN>",
+      "type": "手動 / 排程（使用者自定）",
+      "profile": "<YOUR_HERMES_PROFILE>",
+      "bot": "@<YOUR_BOT_USERNAME>",
+      "desc": "<USER_DESCRIPTION>",
+      "services": [],
+      "depends_on": [],
+      "entry": {
+        "排程腳本": "/path/to/your/cron.py",
+        "產出": "/path/to/output/"
+      },
+      "links": []
+    }
+  }
+}
