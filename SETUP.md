@@ -75,6 +75,21 @@ curl "$AJD_URL/api/state"
 
 ---
 
+## 常見錯誤與解決方案
+
+| 錯誤現象 | 原因 | 解決方案 |
+|---|---|---|
+| `AJD_HOME: unbound variable` | 沒設定環境變數 | 安裝前 `export AJD_HOME="$HOME/.ajd"` 或用 `AJD_HOME=... bash install.sh` |
+| `python3: command not found` / `ModuleNotFoundError` | 缺 Python / 依賴 | `brew install python3` (macOS) 或 `apt install python3-pip` (Linux)，再 `pip3 install -r app/requirements.txt` |
+| `Address already in use` | Port 被佔用 | 改 `PORT=5199` 重裝，或 `lsof -i :5080` 找出佔用者 kill 掉 |
+| `curl $AJD_URL` 回非 200 | 服務未啟動 / log 有錯 | `tail -f $AJD_HOME/data/logs/server.log` 看錯誤；確認 `AJD_HOME` 指向正確目錄 |
+| `projects.json` 找不到 / 格式錯 | 沒從 example 複製 / JSON 破損 | `cp $AJD_HOME/projects.example.json $AJD_HOME/projects.json` 重編輯 |
+| heartbeat 送出但面板未更新 | job name 不匹配 | `projects.json` 的專案 key/name 必須與 heartbeat 的 `job` 參數一致 |
+| `logs/` 目錄不存在、server.log 寫入失敗 | 安裝腳本未建立 logs 目錄 | `mkdir -p $AJD_HOME/data/logs` |
+| `ModuleNotFoundError: No module named 'flask'` | venv 沒啟用 / 依賴未裝 | `pip3 install flask` 或確認用系統 python3 而非 venv 內的 |
+
+---
+
 ## 進階設定
 
 ### 自訂 heartbeat timeout

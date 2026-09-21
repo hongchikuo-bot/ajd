@@ -5,7 +5,7 @@
 ## 📦 快速開始（一鍵部署）
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kkh0518/ajd/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hongchikuo-bot/ajd/main/install.sh | bash
 ```
 
 跑完會出現 `✅ AJD 安裝完成！`，然後開啟瀏覽器：
@@ -27,15 +27,30 @@ data/snapshots/        # 歷史報表、縮圖
 
 ## ⚙️ 設定欄位
 
-`projects.example.json` 的 schema：
+`projects.example.json` 的 schema（實際專案結構）：
 
-| JSON Key | Value | Example |
-|---|---|---|
-| `dashboardUrl` | http://localhost:5080/ | 本機服務地址（或遠端 IP） |
-| `registryPath` | $HOME/.hermes/projects.json | job 註冊表路徑 |
-| `allowLocalOnly` | true | 強制本地操作 |
+```json
+{
+  "projects": {
+    "<YOUR_PROJECT_NAME>": {
+      "name": "<PROJECT_NAME>",
+      "type": "手動 / 排程（使用者自定）",
+      "profile": "<YOUR_HERMES_PROFILE>",
+      "bot": "@<YOUR_BOT_USERNAME>",
+      "desc": "<USER_DESCRIPTION>",
+      "services": [],
+      "depends_on": [],
+      "entry": {
+        "排程腳本": "/path/to/your/cron.py",
+        "產出": "/path/to/output/"
+      },
+      "links": []
+    }
+  }
+}
+```
 
-## 🛠️開發
+## 🛠️ 開發
 
 ```bash
 # 安裝 Python dep
@@ -54,7 +69,34 @@ docker-compose up -d
 cd .. && git add . && git commit -m "feat: ..." && git push
 ```
 
-## 📖更多文件
+## 🏗️ 架構概覽
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      AJD Dashboard                          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │  Schedulers  │  │  Services    │  │  Heartbeats  │      │
+│  │  (adapters)  │  │  (adapters)  │  │  (POST API)  │      │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘      │
+│         │                 │                 │               │
+│         └─────────────────┼─────────────────┘               │
+│                           ▼                                  │
+│              ┌────────────────────────┐                     │
+│              │   Unified Format       │                     │
+│              │  (projects.json +      │                     │
+│              │   snapshots + hb)      │                     │
+│              └────────────┬───────────┘                     │
+│                           ▼                                  │
+│              ┌────────────────────────┐                     │
+│              │   Flask + PWA UI       │                     │
+│              │   (static + templates) │                     │
+│              └────────────────────────┘                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Adapter 層**：每個來源（crontab、launchd、systemd、Hermes）都是獨立模組，輸出統一格式 → 核心只認統一格式。
+
+## 📖 更多文件
 
 - [AGENTS.md](AGENTS.md) — AI agent 配置指南（Hermes/Claude/Cursor）
 - [SCOPE.md](SCOPE.md) — 專案範圍與路標
@@ -63,4 +105,4 @@ cd .. && git add . && git commit -m "feat: ..." && git push
 
 ## 📝 License
 
-MIT · [repo](https://github.com/kkh0518/ajd)
+MIT · [repo](https://github.com/hongchikuo-bot/ajd)

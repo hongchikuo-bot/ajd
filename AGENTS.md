@@ -28,11 +28,43 @@
 
 ## Settings (schema from `$AJD_HOME/app/projects.example.json`)
 
-| JSON Key | Value | Example |
+The actual `projects.json` schema (copied from `projects.example.json` on install):
+
+```json
+{
+  "projects": {
+    "<YOUR_PROJECT_NAME>": {
+      "name": "<PROJECT_NAME>",
+      "type": "手動 / 排程（使用者自定）",
+      "profile": "<YOUR_HERMES_PROFILE>",
+      "bot": "@<YOUR_BOT_USERNAME>",
+      "desc": "<USER_DESCRIPTION>",
+      "services": [],
+      "depends_on": [],
+      "entry": {
+        "排程腳本": "/path/to/your/cron.py",
+        "產出": "/path/to/output/"
+      },
+      "links": []
+    }
+  }
+}
+```
+
+**Key fields:**
+| Field | Required | Description |
 |---|---|---|
-| `dashboardUrl` | `http://localhost:5080/` | 本機服務地址（或遠端 IP） |
-| `registryPath` | `$HOME/.hermes/projects.json` | arbitrary path you choose |
-| `allowLocalOnly` | `true` | Force local operation |
+| `name` | Yes | Display name for the project |
+| `type` | Yes | e.g., "排程", "手動", "服務" |
+| `profile` | No | Hermes profile name if applicable |
+| `bot` | No | Bot username (e.g., @mybot) |
+| `desc` | No | Project description |
+| `services` | No | Array of service keys from registry.services |
+| `depends_on` | No | Array of project names this depends on |
+| `entry` | No | Object with script paths and output dirs |
+| `links` | No | Array of link objects with `name`, `url`, optional `src` for dynamic URLs |
+
+> **Note**: AJD does NOT use `dashboardUrl`, `registryPath`, or `allowLocalOnly` — those were removed in v0.4. The dashboard URL is set via `AJD_URL` env var or defaults to `http://localhost:5080/`.
 
 ---
 
@@ -42,7 +74,7 @@
 curl http://localhost:5080/api/state
 ```
 
-Return JSON → service is ready.
+Returns JSON → service is ready.
 
 ---
 
@@ -50,13 +82,13 @@ Return JSON → service is ready.
 
 ### Hermes (local or remote)
 
-In `~/root/dashboard/.hermes/profiles/default/memories/config`:
+Add to `~/.hermes/profiles/default/memories/config`:
 
 ```bash
 AJD_URL="http://localhost:5080/"
-HERMES_AJD_REGISTRY="$HOME/.hermes/projects.json"
-HERMES_AJD_ALLOW_LOCAL_ONLY=true
 ```
+
+That's it — the agent reads `projects.json` from `$AJD_HOME/projects.json` (set by install).
 
 ### Claude / Cursor / Windsurf
 
@@ -64,18 +96,20 @@ HERMES_AJD_ALLOW_LOCAL_ONLY=true
 {
   "ai-jobs": {
     "dashboardUrl": "http://localhost:5080/",
-    "registryPath": "$HOME/.hermes/projects.json",
-    "allowLocalOnly": true,
+    "registryPath": "$AJD_HOME/projects.json",
     "respectAGENTSmd": true
   }
 }
 ```
+
+> **Important**: Use `$AJD_HOME/projects.json` (or your custom path) for `registryPath`. Do NOT use `$HOME/.hermes/projects.json` unless that's where you put it.
 
 ---
 
 ## Related Docs
 
 - `SETUP.md` — Manual setup (no AI agent)
-- `README.md` — Full description (English, TBD)
+- `README.md` — Full description (English)
+- `README-zh.md` — 中文說明
 
-> **Version:** 0.3.0 (install.sh fixed: valid endpoints only + service start | AGENTS.md fixed: no fake fields)
+> **Version:** 0.4.0 (AGENTS.md schema fixed to match projects.example.json)

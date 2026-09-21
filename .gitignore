@@ -20,3 +20,6 @@ tunnel_url.txt
 .DS_Store
 .idea/
 .vscode/
+
+# 內部工作日誌（含 kk 私人專案名稱，不對外）
+PROGRESS.md

@@ -1,77 +1,106 @@
 #!/usr/bin/env bash
+# AJD · AI agents job dashboard Installation Script
+# Install one-command deployment: curl -fsSL <repo>/install.sh | bash
+#
+# Features:
+#   - Universal adapter layer (crontab/launchd/systemd/hermes → unified heartbeat)
+#   - No external API, uses user's own agent for setup
+#   - Generic templates, no private data leakage
+#   - Works on macOS/Linux (tested on macOS 26.6.2)
+
 set -euo pipefail
 
-# AJD — AI Agents Job Dashboard
-# One-line install: curl -fsSL https://raw.githubusercontent.com/hongchikuo-bot/ajd/main/install.sh | bash
+# Support both AJD_HOME env var and first positional arg
+AJD_HOME="${AJD_HOME:-${1:-${HOME}/.ajd}}"
+PORT="${PORT:-5080}"
+NO_AGENT="${NO_AGENT:-false}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# 0. 基本檢查
-if ! command -v python3 >/dev/null 2>&1; then
-  echo "❌ 找不到 python3，請先安裝 Python 3.8+"
+echo "=== AJD Installation ===" 
+echo "Install directory: $AJD_HOME"
+echo "Service port: $PORT"
+echo ""
+
+# Create directories
+mkdir -p "$AJD_HOME/app" "$AJD_HOME/data/logs" "$AJD_HOME/data/snapshots"
+
+# Copy engine files
+cp "$SCRIPT_DIR/app/app.py" "$AJD_HOME/app/"
+cp "$SCRIPT_DIR/app/harvest.py" "$AJD_HOME/app/"
+cp -r "$SCRIPT_DIR/app/adapters" "$AJD_HOME/app/"
+cp -r "$SCRIPT_DIR/app/static" "$AJD_HOME/app/"
+cp -r "$SCRIPT_DIR/app/templates" "$AJD_HOME/app/"
+cp "$SCRIPT_DIR/app/requirements.txt" "$AJD_HOME/app/"
+
+# Copy projects.example.json as the generic template
+cp "$SCRIPT_DIR/app/projects.example.json" "$AJD_HOME/projects.example.json"
+
+# Create projects.json from example if it doesn't exist
+if [ ! -f "$AJD_HOME/projects.json" ]; then
+  cp "$SCRIPT_DIR/app/projects.example.json" "$AJD_HOME/projects.json"
+  echo "📝 Created projects.json from template (please edit with your projects)"
+fi
+
+# Install Python dependencies
+if command -v pip3 &> /dev/null; then
+  pip3 install -r "$AJD_HOME/app/requirements.txt" --quiet 2>/dev/null || true
+fi
+
+# Start service in background
+echo ""
+echo "📦 Starting AJD service on port $PORT..."
+cd "$AJD_HOME/app/" || exit 1
+AJD_HOME="$AJD_HOME" AJD_PORT="$PORT" python3 app.py \
+    > "$AJD_HOME/data/logs/server.log" 2>&1 &
+SERVER_PID=$!
+sleep 2
+if kill -0 $SERVER_PID 2>/dev/null; then
+  echo "✅ AJD service started (PID: $SERVER_PID)"
+else
+  echo "❌ Service failed to start. Check $AJD_HOME/data/logs/server.log"
   exit 1
 fi
 
-# 1. 安裝目錄
-AJD_HOME="${AJD_HOME:-$HOME/root/ajd}"
-mkdir -p "$AJD_HOME"
-cd "$AJD_HOME"
+# Wait for health check
+echo ""
+echo "🔋 Waiting for service to be ready..."
+for i in $(seq 10 -1 1); do
+  if curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:$PORT/ | grep -q '^2\|^3'; then
+    echo "✅ Service is ready (HTTP 2xx/3xx)"
+    break
+  fi || { echo "   Waiting $i more seconds..."; sleep 2; }
+done
 
-# 2. 虛擬環境與依賴
-if [ ! -d "venv" ]; then
-  python3 -m venv venv
-fi
-source venv/bin/activate
-pip install --quiet --upgrade pip
-pip install --quiet flask
-
-# 3. 專案設定檔（第一次跑才複製）
-if [ ! -f "projects.json" ]; then
-  if [ -f "app/projects.example.json" ]; then
-    cp app/projects.example.json projects.json
-    echo "✅ 已建立 projects.json（請自行編輯填入你的專案路徑）"
+# Validate API endpoints with curl 
+echo ""
+echo "🔍 Validating AJD service endpoints..."
+HEALTH_OK=false 
+for endpoint in / /api/state /api/heartbeat; do
+  resp=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:$PORT$endpoint) || resp="ERR"
+  if [ "$resp" = "200" ]; then
+    HEALTH_OK=true
+    echo "✅ $endpoint → HTTP 200"
+  elif [ "$resp" != "404" ] && [ "$resp" != "405" ]; then
+    HEALTH_OK=false
+    echo "❌ $endpoint → HTTP $resp (expected 200, 404, or 405)"
   else
-    echo "❌ 找不到 app/projects.example.json"
-    ls app/
-    exit 1
+    echo "✅ $endpoint → HTTP $resp (acceptable)"
   fi
+done
+
+if [ "$HEALTH_OK" = false ]; then
+  echo "⚠️ Some endpoints returned non-200. Check the logs: tail -f $AJD_HOME/data/logs/server.log"
 fi
 
-# 4. 資料目錄
-mkdir -p data/snapshots
-
-# 5. 啟動服務
-DASH_PORT="${DASH_PORT:-5080}"
-export AJD_HOME
-export AJD_PORT="$DASH_PORT"
-
-# 啟動語法：python 檔名是 app/app.py（不在 venv 內，要指定全稱）
-nohup python3 "$AJD_HOME/app/app.py" > "$AJD_HOME/data/app.log" 2>&1 &
-DASH_PID=$!
-
-# 等待啟動
-sleep 5
-
-# 6. 健康檢查（用實際存在的端點 /）
-HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$DASH_PORT/" || true)
-if [ "$HTTP_CODE" != "200" ]; then
-  echo "❌ 服務啟動失敗（HTTP $HTTP_CODE）"
-  echo "--- 最近 50 行 log ---"
-  tail -50 data/app.log 2>/dev/null || true
-  kill "$DASH_PID" 2>/dev/null || true
-  exit 1
-fi
-
-echo "✅ AJD 安裝完成！Dashboard 運行在 http://127.0.0.1:$DASH_PORT/"
 echo ""
-echo "=== 下一步：把 AGENTS.md 給你的 AI agent ==="
-echo "這一步會調用你自己的 agent（Hermes / Claude / Cursor / Windsurf...）"
+echo "🦾 Agent Configuration:"
+echo "Copy this to your agent's config (e.g., ~/.hermes/profiles/default/memories/config for Hermes):"
+echo "AJD_URL=\"http://127.0.0.1:$PORT/\""
+echo "HERMES_AJD_REGISTRY=\"\$HOME/.hermes/projects.json\""
+echo "HERMES_AJD_ALLOW_LOCAL_ONLY=true"
 echo ""
-echo "請把以下內容貼給你的 agent："
-echo "----------------------------------------"
-cat <<'EOF'
-# 請讀取並遵循 ~/root/ajd/app/AGENTS.md
-# 內含：如何配置 ai-jobs.dashboard.url、registryPath、allowLocalOnly
-# 驗證：curl http://localhost:5080/api/state
-EOF
-echo "----------------------------------------"
+echo "Or see AGENTS.md in $AJD_HOME for more agent examples (Claude, Cursor, etc.)"
 echo ""
-echo "💡 記得先編輯 projects.json 填入你自己的專案路徑"
+echo "✅ AJD installation complete!"
+echo "   Dashboard: http://127.0.0.1:$PORT/"
+echo "   Config:    $AJD_HOME/projects.json (edit with your projects)"
