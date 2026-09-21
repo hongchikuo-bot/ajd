@@ -113,3 +113,19 @@ That's it — the agent reads `projects.json` from `$AJD_HOME/projects.json` (se
 - `README-zh.md` — 中文說明
 
 > **Version:** 0.4.0 (AGENTS.md schema fixed to match projects.example.json)
+
+
+---
+
+## 🚫 不要刪除的目錄（公開 repo 契約）
+
+這個 repo 已經公開發布在 https://github.com/hongchikuo-bot/ajd ，以下路徑是**對外內容**，
+清理工作（垃圾檔清除）時必須保留：
+
+| 路徑 | 為什麼不能刪 |
+|---|---|
+| `docs/screenshot-*.png` | 公開 README 的示意圖，刪掉 GitHub 上的圖就會破圖 |
+| `ci/github-actions.yml` | CI 設定（因 token 沒有 workflow scope 才放這裡），README 有引用 |
+| `README.md` / `README-zh.md` | 對外門面（英文為主、中文並列） |
+
+`PROGRESS.md` 相反：它是內部工作日誌（含使用者私人專案名稱），**只在 .gitignore 裡、不可提交**。
