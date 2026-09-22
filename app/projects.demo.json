@@ -1,0 +1,55 @@
+{
+  "_comment": "AJD Demo 專案資料——僅供截圖與展示用",
+  "_note": "通用化版本：所有路徑、專案名稱、bot 名稱皆為虛構範例",
+  "projects": {
+    "daily-briefing": {
+      "name": "Daily Briefing Pipeline",
+      "type": "Pipeline",
+      "profile": "ops",
+      "bot": "@ops_bot",
+      "desc": "Collect → render → publish → notify",
+      "services": ["api-gateway"],
+      "depends_on": [],
+      "paths": ["/tmp/ajd-demo/root/daily"]
+    },
+    "weekly-report": {
+      "name": "Weekly Analytics Report",
+      "type": "排程",
+      "profile": "analytics",
+      "bot": "@analytics_bot",
+      "desc": "Aggregate metrics, generate charts, email stakeholders",
+      "services": ["db-primary", "redis-cache"],
+      "depends_on": ["daily-briefing"],
+      "paths": ["/tmp/ajd-demo/root/weekly"]
+    },
+    "model-training": {
+      "name": "Model Training Pipeline",
+      "type": "手動",
+      "profile": "ml",
+      "bot": "@ml_bot",
+      "desc": "Data prep → train → evaluate → register model",
+      "services": ["mlflow", "gpu-cluster"],
+      "depends_on": [],
+      "paths": ["/tmp/ajd-demo/root/ml/models"]
+    },
+    "backup-job": {
+      "name": "Nightly Backup",
+      "type": "服務",
+      "profile": "infra",
+      "bot": "@infra_bot",
+      "desc": "Snapshot databases, upload to cold storage, verify integrity",
+      "services": ["s3-backup", "postgres-primary"],
+      "depends_on": [],
+      "paths": ["/tmp/ajd-demo/root/backups"]
+    }
+  },
+  "services": {
+    "api-gateway": { "port": 8080, "desc": "Main API Gateway" },
+    "db-primary": { "port": 5432, "desc": "PostgreSQL Primary" },
+    "redis-cache": { "port": 6379, "desc": "Redis Cache Cluster" },
+    "mlflow": { "port": 5000, "desc": "MLflow Tracking Server (demo ✅)" },
+    "gpu-cluster": { "port": 8000, "desc": "GPU Cluster Manager (demo ✅)" },
+    "s3-backup": { "port": 9000, "desc": "MinIO/S3 Backup Target (demo ✅)" },
+    "postgres-primary": { "port": 5432, "desc": "PostgreSQL Primary" }
+  }
+}

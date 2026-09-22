@@ -32,6 +32,12 @@ cp -r "$SCRIPT_DIR/app/static" "$AJD_HOME/app/"
 cp -r "$SCRIPT_DIR/app/templates" "$AJD_HOME/app/"
 cp "$SCRIPT_DIR/app/requirements.txt" "$AJD_HOME/app/"
 
+# Copy docs for user reference
+cp "$SCRIPT_DIR/AGENTS.md" "$AJD_HOME/"
+cp "$SCRIPT_DIR/SETUP.md" "$AJD_HOME/"
+cp "$SCRIPT_DIR/README.md" "$AJD_HOME/"
+cp "$SCRIPT_DIR/README-zh.md" "$AJD_HOME/"
+
 # Copy projects.example.json as the generic template
 cp "$SCRIPT_DIR/app/projects.example.json" "$AJD_HOME/projects.example.json"
 
@@ -96,8 +102,6 @@ echo ""
 echo "🦾 Agent Configuration:"
 echo "Copy this to your agent's config (e.g., ~/.hermes/profiles/default/memories/config for Hermes):"
 echo "AJD_URL=\"http://127.0.0.1:$PORT/\""
-echo "HERMES_AJD_REGISTRY=\"\$HOME/.hermes/projects.json\""
-echo "HERMES_AJD_ALLOW_LOCAL_ONLY=true"
 echo ""
 echo "Or see AGENTS.md in $AJD_HOME for more agent examples (Claude, Cursor, etc.)"
 echo ""

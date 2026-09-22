@@ -1,14 +1,14 @@
 {
   "name": "AJD · AI agents job dashboard",
   "short_name": "AJD",
-  "description": "你的 AI agents、排程與服務監控台",
+  "description": "Your AI agents, cron jobs & services dashboard",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0b0f15",
   "theme_color": "#0b0f15",
-  "lang": "zh-Hant",
+  "lang": "en",
   "icons": [
     {
       "src": "/static/icon-192.png",

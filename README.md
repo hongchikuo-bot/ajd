@@ -138,8 +138,7 @@ your fork.
 
 ## Notes
 
-- The dashboard UI is currently **Chinese**, with English documentation. An English UI (with a language
-  toggle) is in progress — PRs welcome.
+- The dashboard UI is **bilingual (English / Chinese)**, defaulting to your browser language with a toggle.
 - Every path, project name and service in the screenshots is fictional demo data.
 
 ## License

@@ -23,9 +23,15 @@ from datetime import datetime, timezone, timedelta
 
 HOME = os.path.expanduser("~")
 # AJD_HOME: 安裝目錄（內含 harvest.py / data / projects.json）
-# 預設值 = harvest.py 所在目錄，安裝腳本會設成 ~/root/ajd/
+# 預設值 = harvest.py 所佢所在目錄，安裝腳本會設成 ~/root/ajd/
 DASH = os.environ.get("AJD_HOME") or os.path.dirname(os.path.abspath(__file__))
+
+# ROOT：專案根目錄（用於尋找使用者自己的專案）
 ROOT = os.path.join(HOME, "root")
+
+# DEMO_ROOT：demo 環境中的專案根（當沒有設定 AJD_HOME 時fallback）
+DEMO_ROOT = DASH
+
 SNAP_DIR = os.path.join(DASH, "data", "snapshots")
 REGISTRY = os.path.join(DASH, "projects.json")
 
@@ -243,8 +249,20 @@ def main():
 
     for name, meta in projects.items():
         # 專案可能由多個路徑組成（例如維運散在 ~/root/bin 與 ~/.hermes/scripts）
-        raw = meta.get("paths") or [os.path.join(ROOT, name)]
-        paths = [os.path.expanduser(x) for x in raw]
+        raw = meta.get("paths")
+        if raw:
+            paths = [os.path.expanduser(raw[0])] if isinstance(raw, list) else [raw]
+        else:
+            paths = [os.path.join(ROOT, name)]
+        
+        # demo 環境 fallback：當沒有 AJD_HOME 或路徑不存在時，搜尋 /tmp/ajd-demo/root/*
+        if not os.path.exists(paths[0]):
+            dash_root = "/tmp/ajd-demo/root"
+            search_pattern = f"{dash_root}/{name.lstrip('/')}"
+            # 直接檢查 demo fallback 目錄
+            if os.path.exists(search_pattern):
+                paths = [search_pattern]
+
         paths = [x for x in paths if os.path.exists(x)]
         if not paths:
             if "paths" in meta:

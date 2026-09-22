@@ -12,22 +12,23 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/static/icon-192.png">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0b0f15" media="(prefers-color-scheme: dark)">
-<title>AJD · AI agents job dashboard</title>
+<title data-i18n="app.title">AJD · AI agents job dashboard</title>
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
 <header>
   <div class="hd-top">
-    <h1>🛰 AJD</h1>
-    <button id="refresh" title="重新整理">↻</button>
+    <h1 data-i18n="app.name">🛰 AJD</h1>
+    <button id="refresh" data-i18n-title="header.refresh.title" title="重新整理">↻</button>
+    <button id="langSwitch" class="lang-btn" aria-label="Switch language">English</button>
   </div>
-  <div class="hd-meta" id="hdMeta">載入中…</div>
+  <div class="hd-meta" id="hdMeta" data-i18n="header.meta.loading">載入中…</div>
   <nav class="tabs">
-    <button class="tab active" data-view="overview">📋 總覽</button>
-    <button class="tab" data-view="projects">📁 專案</button>
-    <button class="tab" data-view="ideas">💡 想法<span class="badge" id="ideaBadge" hidden></span></button>
-    <button class="tab" data-view="history">📈 歷史</button>
+    <button class="tab active" data-view="overview" data-i18n="tabs.overview">📋 總覽</button>
+    <button class="tab" data-view="projects" data-i18n="tabs.projects">📁 專案</button>
+    <button class="tab" data-view="ideas" data-i18n="tabs.ideas">💡 想法<span class="badge" id="ideaBadge" hidden></span></button>
+    <button class="tab" data-view="history" data-i18n="tabs.history">📈 歷史</button>
   </nav>
 </header>
 
@@ -36,10 +37,10 @@
 
   <section id="view-projects" hidden>
     <div class="seg" id="groupBy">
-      <button class="seg-b on" data-g="bot">🤖 依 bot</button>
-      <button class="seg-b" data-g="type">🏷 依型態</button>
+      <button class="seg-b on" data-g="bot" data-i18n="projects.groupby.bot">🤖 依 bot</button>
+      <button class="seg-b" data-g="type" data-i18n="projects.groupby.type">🏷 依型態</button>
     </div>
-    <input id="projSearch" class="search" type="search" placeholder="搜尋專案名稱、型態、負責 bot…">
+    <input id="projSearch" class="search" type="search" data-i18n="projects.search.placeholder" placeholder="搜尋專案名稱、型態、負責 bot…">
     <div id="projList"></div>
   </section>
 
@@ -47,10 +48,10 @@
 
   <section id="view-ideas" hidden>
     <div class="composer">
-      <textarea id="ideaInput" rows="3" placeholder="突然想到什麼？先丟進來，不用想清楚…"></textarea>
+      <textarea id="ideaInput" rows="3" data-i18n="ideas.composer.placeholder" placeholder="突然想到什麼？先丟進來，不用想清楚…"></textarea>
       <div class="composer-row">
-        <button class="btn-primary" id="ideaAdd">記下來</button>
-        <span class="hint" id="composerHint"></span>
+        <button class="btn-primary" id="ideaAdd" data-i18n="ideas.composer.add">記下來</button>
+        <span class="hint" id="composerHint" data-i18n="ideas.composer.hint.empty"></span>
       </div>
     </div>
     <div id="ideaList"></div>
@@ -63,6 +64,7 @@
   <div class="sheet-inner" id="detailInner"></div>
 </div>
 
+<script src="/static/i18n.js"></script>
 <script src="/static/app.js"></script>
 </body>
 </html>
