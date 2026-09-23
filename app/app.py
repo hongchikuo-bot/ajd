@@ -355,6 +355,9 @@ def history_diffs(snaps):
             p = prev.get("projects", {}).get(name)
             if not p or not f.get("exists"):
                 continue
+            # 確保前一個快照也有 files 結構
+            if not p.get("files"):
+                continue
             d7 = f["files"]["7d"] - p["files"]["7d"]
             d1 = f["files"]["1d"] - p["files"]["1d"]
             new_files = f["files"]["total"] - p["files"]["total"]

@@ -27,6 +27,7 @@ mkdir -p "$AJD_HOME/app" "$AJD_HOME/data/logs" "$AJD_HOME/data/snapshots"
 # Copy engine files
 cp "$SCRIPT_DIR/app/app.py" "$AJD_HOME/app/"
 cp "$SCRIPT_DIR/app/harvest.py" "$AJD_HOME/app/"
+cp "$SCRIPT_DIR/app/test_adapters.py" "$AJD_HOME/app/"
 cp -r "$SCRIPT_DIR/app/adapters" "$AJD_HOME/app/"
 cp -r "$SCRIPT_DIR/app/static" "$AJD_HOME/app/"
 cp -r "$SCRIPT_DIR/app/templates" "$AJD_HOME/app/"
@@ -37,6 +38,8 @@ cp "$SCRIPT_DIR/AGENTS.md" "$AJD_HOME/"
 cp "$SCRIPT_DIR/SETUP.md" "$AJD_HOME/"
 cp "$SCRIPT_DIR/README.md" "$AJD_HOME/"
 cp "$SCRIPT_DIR/README-zh.md" "$AJD_HOME/"
+# Copy demo screenshots for README
+cp -r "$SCRIPT_DIR/docs" "$AJD_HOME/"
 
 # Copy projects.example.json as the generic template
 cp "$SCRIPT_DIR/app/projects.example.json" "$AJD_HOME/projects.example.json"

@@ -1,124 +1,158 @@
 #!/usr/bin/env python3
-"""AJD Demo 截圖（純 Python PNG）——無 Pillow, 使用 base64 fallback"""
+"""AJD Demo 截圖生成器 —— 使用 Pillow 生成通用 demo 截圖"""
 
-import os, struct, zlib
+import os
+from PIL import Image, ImageDraw, ImageFont
+
 PATH = os.environ.get("AJD_HOME") or "/tmp/ajd-demo"
 OUT_DIR = f"{PATH}/docs/screenshots/demo"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 
-def png_chunk(tag, data):
-    """寫一個 PNG chunk (IHDR, tRNS, IDAT, IEND)"""
-    crc_data = zlib.crc32(struct.pack("II", tag, len(data)) + data) & 0xffffffff
-    return struct.pack(">I", len(data) + 12) + struct.pack(">I", tag) + data + struct.pack(">I", crc_data)
-
-
-def deflate_chunk(tag, raw):
-    try:
-        compressed = zlib.compress(raw, level=-zlib.MAX_COMPRESSION)
-    except Exception as e:
-        print(f"⚠️ {tag}: compress error={e}; using plain")
-        compressed = raw
-    return png_chunk(tag, compressed)
-
-
-def simple_png():
-    """生成最小的有效 PNG——白色背景 + 文字（用 PIL）"""
-    try:
-        from PIL import Image, ImageDraw, ImageFont
-        bg_w, bg_h, cols, row = 1080, 720, 156, 41
-        font_main, font_sm = "System UI", "System Mono"
-        
-        # 桌面背景（深藍）
-        d_bg = Image.new("RGB", (bg_w, bg_h), "#1e293b")
-        d_draw = ImageDraw.Draw(d_bg)
-        
-        # 標題
-        title = "AJD · AI agents job dashboard"
-        d_draw.multiline_text((60, 48), title, font=font_main, align="center", fill="#f8fafc")
-        
-        # 專案卡片（四行）
-        items = [
-            ("daily-briefing 🟢 ✅", "#cbd5e1"),
-            ("weekly-report ⏱️ ⚠️", "#cbd5e1"),
-            ("model-training 🟠 ⚠️", "#cbd5e1"),
-            ("backup-job 🔵 ✅",   "#cbd5e1")
-        ]
-        y_top, step = 90, 45
-        for idx, (text, color) in enumerate(items):
-            d_draw.multiline_text((700 - len(text)*7 - 20, y_top + idx*step), text, font=font_main, align="right", fill=color)
-        
-        # progress bar（四行各一個）
-        for i, (text, _) in enumerate(items):
-            p = [80, 50, 25, 90][i]
-            bar_w = bg_w - 140
-            bg_bar = d_draw.rounded_rectangle((60, 20+i*step+15), (bg_w-60, 30+i*step+25), radius=4, fill="#334155")
-            bar_fg_color = "#22c55e" if p>70 else ("#f59e0b" if p>30 else "#ef4444")
-            d_draw.rounded_rectangle((62, 22+i*step+18), (bg_w-56-p*bar_w//100.5, 32+i*step+22), radius=4, fill=bar_fg_color)
-        
-        # service status（底部）
-        d_draw.multiline_text((60, bg_h-60), [
-            "services:", "mlflow ✅", "gpu-cluster ✅", "s3-backup ✅"
-        ], align="left", fill="#cbd5e1")
-        
-    except Exception as e:
-        print(f"❌ desktop error={e}")
-        d_bg = None
-
-    try:
-        # 手機背景（浅灰）
-        m_bkg = Image.new("RGB", (390, 844), "#f1f5f9")
-        m_draw = ImageDraw.Draw(m_bkg)
-        
-        # status bar
-        d_draw = ImageDraw.Draw(m_bkg)
-        d_draw.rounded_rectangle((0, 0, 389, 50), radius=25, fill="#e2e8f0")
-        
-        items = [
-            ("daily-briefing", "✅ last: 1m ago"),
-            ("weekly-report",  "⚠️ last: 6d ago"),
-            ("model-training", "⚠️ last: 5h ago"),
-            ("backup-job",     "✅ last: now")
-        ]
-        y_base, step = 70, 42
-        for text_small, status in items:
-            d_draw.rounded_rectangle((15, y_base-8), (374-15, y_base), radius=8, fill="#ffffff")
-            d_draw.multiline_text((20, y_base), text_small, font=font_main, align="left", fill="#334155", anchor="ms")
-            status_x = 20 + len(text_small)*6 + 20
-            d_draw.multiline_text((status_x, y_base+8), status, font=font_sm, align="left", fill="#64748b", anchor="ls", spacing=-1)
-            y_base += step
-        
-    except Exception as e:
-        print(f"❌ mobile error={e}")
-        m_bkg = None
+def generate_desktop_screenshot():
+    """生成桌面版截圖 (1080x720)"""
+    bg_w, bg_h = 1080, 720
+    img = Image.new("RGB", (bg_w, bg_h), "#1e293b")
+    draw = ImageDraw.Draw(img)
     
-    return d_bg, m_bkg
+    # 嘗試載入字體，失敗用預設
+    try:
+        font_main = ImageFont.truetype("/System/Library/Fonts/SFNSDisplay.ttf", 24)
+        font_sm = ImageFont.truetype("/System/Library/Fonts/SFNSMono.ttf", 16)
+    except Exception:
+        font_main = ImageFont.load_default()
+        font_sm = ImageFont.load_default()
+    
+    # 標題
+    title = "AJD · AI agents job dashboard"
+    draw.text((60, 48), title, font=font_main, fill="#f8fafc")
+    
+    # 專案卡片（四行）
+    items = [
+        ("daily-briefing", "🟢 運行中", "今天有動", "#22c55e"),
+        ("weekly-report",  "⚠️ 停滯",  "停滯 6 天", "#f59e0b"),
+        ("model-training", "⚠️ 進行中", "5 小時內有動", "#f59e0b"),
+        ("backup-job",     "🔵 運行中", "剛完成", "#3b82f6"),
+    ]
+    
+    y_top, step = 120, 120
+    for idx, (name, badge, status, color) in enumerate(items):
+        y = y_top + idx * step
+        
+        # 專案名稱
+        draw.text((80, y), name, font=font_main, fill="#cbd5e1")
+        
+        # 徽章
+        draw.text((300, y), badge, font=font_sm, fill=color)
+        
+        # 狀態
+        draw.text((450, y), status, font=font_sm, fill="#94a3b8")
+        
+        # 進度條背景
+        bar_x, bar_y = 80, y + 35
+        bar_w, bar_h = 700, 16
+        draw.rounded_rectangle([bar_x, bar_y, bar_x + bar_w, bar_y + bar_h], radius=8, fill="#334155")
+        
+        # 進度條前景
+        progress = [85, 25, 50, 90][idx]
+        fg_w = int(bar_w * progress / 100)
+        draw.rounded_rectangle([bar_x, bar_y, bar_x + fg_w, bar_y + bar_h], radius=8, fill=color)
+        
+        # 進度百分比文字
+        draw.text((bar_x + bar_w + 20, bar_y - 2), f"{progress}%", font=font_sm, fill="#64748b")
+    
+    # 服務狀態（底部）
+    svc_y = bg_h - 100
+    draw.text((80, svc_y), "Services:", font=font_main, fill="#94a3b8")
+    services = [
+        ("mlflow", True), ("gpu-cluster", True), ("s3-backup", True),
+        ("api-gateway", False), ("db-primary", False), ("redis-cache", False)
+    ]
+    for i, (svc_name, alive) in enumerate(services):
+        x = 80 + (i % 3) * 300
+        y = svc_y + 35 + (i // 3) * 30
+        icon = "✅" if alive else "❌"
+        color = "#22c55e" if alive else "#ef4444"
+        draw.text((x, y), f"{icon} {svc_name}", font=font_sm, fill=color)
+    
+    return img
+
+
+def generate_mobile_screenshot():
+    """生成手機版截圖 (390x844)"""
+    bg_w, bg_h = 390, 844
+    img = Image.new("RGB", (bg_w, bg_h), "#f1f5f9")
+    draw = ImageDraw.Draw(img)
+    
+    try:
+        font_main = ImageFont.truetype("/System/Library/Fonts/SFNSDisplay.ttf", 18)
+        font_sm = ImageFont.truetype("/System/Library/Fonts/SFNSMono.ttf", 14)
+    except Exception:
+        font_main = ImageFont.load_default()
+        font_sm = ImageFont.load_default()
+    
+    # 狀態列
+    draw.rounded_rectangle([0, 0, bg_w, 50], radius=25, fill="#e2e8f0")
+    draw.text((bg_w // 2, 15), "AJD", font=font_main, fill="#334155", anchor="mm")
+    
+    # 專案列表
+    items = [
+        ("daily-briefing", "✅ last: 1m ago", "#22c55e"),
+        ("weekly-report",  "⚠️ last: 6d ago", "#f59e0b"),
+        ("model-training", "⚠️ last: 5h ago", "#f59e0b"),
+        ("backup-job",     "✅ last: now", "#3b82f6"),
+    ]
+    
+    y_base, step = 80, 70
+    for name, status, color in items:
+        # 卡片背景
+        card_y = y_base
+        draw.rounded_rectangle([15, card_y - 8, bg_w - 15, card_y + 50], radius=12, fill="#ffffff", outline="#e2e8f0", width=1)
+        
+        # 專案名稱
+        draw.text((25, card_y), name, font=font_main, fill="#334155")
+        
+        # 狀態
+        draw.text((25, card_y + 28), status, font=font_sm, fill=color)
+        
+        y_base += step
+    
+    # 底部服務
+    svc_y = bg_h - 160
+    draw.text((25, svc_y), "Services:", font=font_main, fill="#64748b")
+    services = [
+        ("mlflow", True), ("gpu-cluster", True), ("s3-backup", True),
+        ("api-gateway", False), ("db-primary", False), ("redis-cache", False)
+    ]
+    for i, (svc_name, alive) in enumerate(services):
+        x = 25 + (i % 2) * 180
+        y = svc_y + 30 + (i // 2) * 25
+        icon = "✅" if alive else "❌"
+        color = "#22c55e" if alive else "#ef4444"
+        draw.text((x, y), f"{icon} {svc_name}", font=font_sm, fill=color)
+    
+    return img
 
 
 if __name__ == "__main__":
-    print("生成 demo 截圖（純 Python PNG）...")
+    print("生成 demo 截圖...")
+    
     try:
-        desk = simple_png()
-        if isinstance(desk, tuple):
-            d_bg, m_bkg = desk
-        else:
-            # fallback: 只有單張桌面
-            import sys; exit(0)
-        
-        d_path, m_path = f"{OUT_DIR}/screenshot-desktop.png", f"{OUT_DIR}/screenshot-mobile.png"
-        
-        try:
-            img_bytes = bytearray()
-            
-            # signature + IHDR
-            sig, ihdr_data = b'\\x89PNG\\r\\n\\x1a\\n', struct.pack('>IHHIIBBBBB', 13, 79, 85, len(img_bytes), 0)
-            img_bytes.extend(sig + deflate_chunk('IHDR', ihdr_data))
-            
-            # IDAT（空）
-            idat_bytes = b'\\x00' * 128
-            d_path.write(idat_bytes[:])
-        except Exception as e:
-            print(f"❌ save error={e}")
+        desktop_img = generate_desktop_screenshot()
+        d_path = f"{OUT_DIR}/screenshot-desktop.png"
+        desktop_img.save(d_path)
+        print(f"✅ 桌面截圖: {d_path}")
     except Exception as e:
+        print(f"❌ 桌面截圖失敗: {e}")
         import traceback; traceback.print_exc()
-
+    
+    try:
+        mobile_img = generate_mobile_screenshot()
+        m_path = f"{OUT_DIR}/screenshot-mobile.png"
+        mobile_img.save(m_path)
+        print(f"✅ 手機截圖: {m_path}")
+    except Exception as e:
+        print(f"❌ 手機截圖失敗: {e}")
+        import traceback; traceback.print_exc()
+    
+    print("完成")

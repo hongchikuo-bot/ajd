@@ -258,12 +258,11 @@ def main():
         # demo 環境 fallback：當沒有 AJD_HOME 或路徑不存在時，搜尋 /tmp/ajd-demo/root/*
         if not os.path.exists(paths[0]):
             dash_root = "/tmp/ajd-demo/root"
-            search_pattern = f"{dash_root}/{name.lstrip('/')}"
-            # 直接檢查 demo fallback 目錄
-            if os.path.exists(search_pattern):
-                paths = [search_pattern]
-
-        paths = [x for x in paths if os.path.exists(x)]
+            ajd_home_dir = os.path.dirname(os.environ.get("AJD_HOME") or "")
+            if ajd_home_dir == "/tmp/ajd-demo":
+                search_pattern = f"{dash_root}/{name.lstrip('/')}".rstrip('/')
+                if os.path.exists(search_pattern):
+                    paths = [search_pattern]
         if not paths:
             if "paths" in meta:
                 # 明確宣告「這個工作沒有自己的檔案」（例如只剩排程的空殼）
