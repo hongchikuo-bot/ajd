@@ -84,7 +84,7 @@ download "$GITHUB_RAW/app/projects.example.json" "$AJD_HOME/projects.example.jso
 
 # Create projects.json from example if it doesn't exist
 if [ ! -f "$AJD_HOME/projects.json" ]; then
-  cp "$SCRIPT_DIR/app/projects.example.json" "$AJD_HOME/projects.json"
+  cp "$AJD_HOME/projects.example.json" "$AJD_HOME/projects.json"
   echo "📝 Created projects.json from template (please edit with your projects)"
 fi
 
