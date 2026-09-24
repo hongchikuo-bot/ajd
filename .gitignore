@@ -11,6 +11,9 @@ run/
 projects.json
 *.log
 
+# 快照（私人報表檔案，不要上傳）
+data/snapshots/
+
 # 憑證（絕不出貨）
 .env
 access_token.txt
