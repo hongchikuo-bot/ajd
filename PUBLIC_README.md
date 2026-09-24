@@ -9,7 +9,7 @@
 
 | 問題 | 原始代碼 | 修正方案 |
 |------|---------|---------|
-| 硬編碼 `/Users/` 路徑 | `bash -n /Users/macmima1234/root/ajd/install.sh` | 改用 `$AJD_HOME/install.sh` |
+| 硬編碼 `/Users/` 路徑 | `bash -n $AJD_HOME/install.sh` → 改用 `$AJD_HOME/install.sh` | 改用 `$AJD_HOME/install.sh` |
 | 誤報私人資料漏失 | grep 抓到 `data/snapshots/*.json` | 過濾 gitignored 目錄 (`data/`, `cache/`) |
 | CI 計數錯誤 | `wc -l` 對無換行尾文件計數為 0 | `wc -l < file + tail` 修正公式 |
 
@@ -87,7 +87,7 @@ Heartbeat test: ✅ POST /api/heartbeat works
 
 **指令**:
 ```bash
-cd /Users/macmima1234/root/ajd && git add .gitignore
+cd $AJD_HOME && git add .gitignore
 git commit -m "Phase 5.1: Git cleanup — ignore private data (snapshots/, caches/)"
 git push origin main --tags
 ```

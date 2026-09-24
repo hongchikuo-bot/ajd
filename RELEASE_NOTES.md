@@ -2,11 +2,37 @@
 
 ## What's New in 0.4.0
 
-### 🎉 一鍵部署正式完成
-- ✅ Phase 1: 抽引擎 — 完成
-- ✅ Phase 2: Adapter 層 — 完成 (crontab/launchd/systemd/hermes → 統一心跳)
-- ✅ Phase 3: 文件 — 完成 (README.md, README-zh.md, SETUP.md, AGENTS.md)
-- 📦 Phase 4: Release — 本版本可正式发布
+### 🎉 One-command Deployment Complete
+
+### ✅ Core Features
+- **Phase 1**: Engine extraction complete (clean from private dashboard)
+- **Phase 2**: Universal adapter layer for schedulers and services  
+- **Phase 3**: Documentation set (README.md, README-zh.md, SETUP.md, AGENTS.md)
+- **Phase 4**: Release package ready with Docker/Dockerfile
+
+### 🔑 Heartbeat Mechanism
+AJD's core innovation: cron completion ≠ system awareness. Dead jobs invisible mid-flight. Any language/framework can report:
+
+```bash
+curl -X POST http://localhost:5080/api/heartbeat \
+     -H 'Content-Type: application/json' \
+     -d '{"job":"daily_report","status":"ok","note":"3.2MB","output":"/var/log/daily_2026-09-23.log"}'
+```
+
+### 🔄 Universal Adapter Support
+- **Schedulers**: crontab (Linux/macOS), launchd (macOS), systemd (Linux), Hermes cron
+- **Service Checks**: port check / HTTP health check, Docker containers  
+- **Heartbeat Reports**: Pure HTTP POST, any language
+
+### 🧹 Works Without Agent
+Manual templates provided via `SETUP.md` for users without AI agents.
+
+### 🚫 Security Rules
+- AI agents **read-only** access to `$AJD_HOME/projects.json` only
+- **No data upload**, all operations local
+- Agents explicitly informed they reuse their own agent (not AJD's)
+
+
 
 ### 🔑 心跳機制 (Heartbeat)
 AJD 的核心靈魂：cron job 真的跑完不等於系統知道，**死在半路看不到**。任何語言、框架都能用固定格式回報：
@@ -126,30 +152,13 @@ Then edit `$AJD_HOME/projects.json`:
       "bot": "@news_daily_bot",
       "desc": "YouTube 每日新聞報表",
       "entry": {
-        "排程腳本": "/Users/macmima1234/.hermes/cron/news/",
-        "產出": "/Users/macmima1234/.hermes/profiles/default/snapshots/"
+        "排程腳本": "/path/to/your/cron.py",       # ← Edit this: point to your cron script
+        "產出": "/path/to/snapshots/"            # ← Edit this: where your job outputs go
       },
       "links": [
         {
-          "name": "YouTube",
-          "url": "https://youtube.com/@newsdailybriefing"
-        }
-      ]
-    },
-    "美股匯總": {
-      "name": "美股每日分析",
-      "type": "排程",
-      "profile": "default",
-      "bot": "@stock_daily_bot",
-      "desc": "YouTube 美股報表",
-      "entry": {
-        "排程腳本": "/Users/macmima1234/.hermes/cron/stock/",
-        "產出": "/Users/macmima1234/.hermes/profiles/default/snapshots/"
-      },
-      "links": [
-        {
-          "name": "YouTube",
-          "url": "https://youtube.com/@stockdailybriefing"
+          "name": "YouTube Channel",             # ← Your channel link
+          "url": "https://youtube.com/@yourchannel"
         }
       ]
     }
@@ -157,7 +166,8 @@ Then edit `$AJD_HOME/projects.json`:
 }
 ```
 
----
+Leave `projects.json` in `$AJD_HOME` (not under version control). The installer copies 
+`projects.example.json` → `projects.json` for you; just edit that file with your real projects.
 
 ## API Endpoints
 
