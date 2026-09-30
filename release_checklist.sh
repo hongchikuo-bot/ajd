@@ -4,7 +4,7 @@
 echo "=== AJD v0.4.0 Release Checklist ==="
 echo ""
 
-cd /Users/macmima1234/root/ajd || exit 1
+cd "$(dirname "$0")" || exit 1
 
 all_ok=true
 

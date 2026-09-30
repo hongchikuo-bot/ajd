@@ -51,8 +51,22 @@ echo "4. Installing Python dependencies..."
 pip3 install -r "$TEST_DIR/app/requirements.txt" --quiet 2>/dev/null || true
 echo "   ✅ Dependencies installed"
 
-# Start service on non-standard port to avoid conflicts
-TEST_PORT=5399
+# Find an available port
+find_free_port() {
+    for port in {5400..5999}; do
+        if ! lsof -i :$port >/dev/null 2>&1; then
+            echo $port
+            return 0
+        fi
+    done
+    return 1
+}
+
+TEST_PORT=$(find_free_port)
+if [ -z "$TEST_PORT" ]; then
+    echo "   ❌ Could not find free port in range 5400-5999"
+    exit 1
+fi
 echo ""
 echo "5. Starting AJD service on port $TEST_PORT..."
 cd "$TEST_DIR/app" || exit 1

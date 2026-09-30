@@ -14,7 +14,7 @@
 [💡 What is Heartbeat?](#why-do-i-care-about-heartbeats) | 
 [🤖 AI Agents Setup](./AGENTS.md)|
 [🔧 Manual Setup](./SETUP.md) |
-[🎥 Demo Video]([TODO: link after screenshot])
+[🎥 Demo Video](#demo-video)
 
 </div>
 
@@ -89,7 +89,11 @@ AJD then alerts you immediately — no matter whether your cron is managed by cr
 
 ## Demo Video
 
-Coming soon! Stay tuned for screen recordings demonstrating:
+The dashboard is ready with screenshots in `docs/`:
+- `docs/screenshot-desktop.png` — Desktop view
+- `docs/screenshot-mobile.png` — Mobile view
+
+Screenshots demonstrate:
 - Dashboard overview with real job status
 - Heartbeat failure alerts in action
 - Manual heartbeat submission
