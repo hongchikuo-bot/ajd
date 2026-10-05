@@ -1,3 +1,17 @@
+## 2026-10-06 03:25 ✅ 發布至 GitHub 完成（v0.4.0）
+- 產出：GitHub repo https://github.com/hongchikuo-bot/ajd 已公開
+- 驗證：
+```bash
+$ git push origin main
+To https://github.com/hongchikuo-bot/ajd.git
+   b5bf7f9..6c381ab  main -> main
+
+$ curl -fsSL https://raw.githubusercontent.com/hongchikuo-bot/ajd/main/install.sh | head -1
+#!/usr/bin/env bash
+```
+- 下一步：🟢 專案已完成全部階段並發布至 GitHub，使用者可透過一鍵指令安裝
+- 卡住：🟢 無
+
 ## 2026-10-06 03:20 ✅ 完成 Phase 6 清安裝驗證（從零跑一次完整流程）
 - 產出：phase6_test.sh（完整驗證腳本，已跑通）
 - 驗證：
