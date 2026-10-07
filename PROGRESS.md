@@ -1,3 +1,107 @@
+## 2026-10-07 09:35 ✅ 修復 validate.sh 硬編碼路徑 + 全項驗證通過
+
+### 🎯 結論
+修復 `scripts/validate.sh` 中的硬編碼路徑問題（`/Users/macmima1234/root/ajd/app` → 使用 `AJD_HOME` 或腳本相對路徑），並完成全項驗證。
+
+---
+
+### ✅ 產出檔案
+- `/Users/macmima1234/root/ajd/scripts/validate.sh` — 修復硬編碼路徑，使用 `SCRIPT_DIR` 推導 `APP_DIR`
+- Git 提交：`9f2ce6a` 已推送至 GitHub
+
+---
+
+### 🔍 驗證結果
+
+#### 1. validate.sh 語法與執行
+```bash
+$ bash -n /Users/macmima1234/root/ajd/scripts/validate.sh
+# ✅ Syntax OK
+
+$ bash scripts/validate.sh
+=== AJD Runtime Health Check ===
+
+1. Stopping existing app instances...
+2. Starting server on port 5081...
+   PID: 83554
+
+3. Waiting for server readiness...
+   ✅ Server ready (HTTP 2xx)
+
+4. Testing heartbeat POST...
+   ✅ Heartbeat recorded
+   Response: {"ok":true,"recorded":{"duration_s":null,"job":"validate-test","note":"","project":"","status":"ok","ts":"2026-10-07T09:28:59+08:00"}}
+
+5. Checking for private data leakage...
+   ✅ No private traces found
+
+6. Cleaning up...
+
+=== Validation Summary ===
+✅ ALL CHECKS PASSED
+```
+
+#### 2. Phase 6 清安裝驗證（phase6_test.sh）
+```bash
+$ bash phase6_test.sh
+=== Phase 6: Clean Install Validation ===
+...
+=== Phase 6 Validation Summary ===
+🎉 ALL CHECKS PASSED - Clean install validation successful!
+```
+
+#### 3. 安裝測試套件
+```bash
+$ bash test_install.sh --port 5201 --dry-run
+...
+=== Test Suite Complete ===  # 全項通過
+```
+
+#### 4. 發布檢查清單
+```bash
+$ bash release_checklist.sh
+...
+⑥ Summary:
+   ✅ Ready for GitHub release v0.4.0
+```
+
+#### 5. Python 語法檢查
+```bash
+$ python3 -m py_compile app/app.py app/harvest.py app/test_adapters.py
+$ find app/adapters -name "*.py" -exec python3 -m py_compile {} \;
+# All Python files compile OK
+```
+
+#### 6. 私人資料掃描
+```bash
+$ grep -rIl -e macmima1234 -e hckytbot -e kuohome -e news_auto -e stock_auto \
+     -e idiom_auto -e ethubs -e zaiditong -e hermesagent -e kuo_bot -e wabi-sabi \
+     app/ | grep -v __pycache__
+# ✅ 無輸出 = 0 筆洩漏
+```
+
+---
+
+### 📋 狀態總結
+| 項目 | 狀態 |
+|------|------|
+| validate.sh 硬編碼路徑修復 | ✅ 完成並驗證 |
+| validate.sh bash -n | ✅ 通過 |
+| validate.sh 執行測試 | ✅ 通過 |
+| phase6_test.sh | ✅ 全項通過 |
+| test_install.sh | ✅ 全項通過 |
+| release_checklist.sh | ✅ 全項通過 |
+| Python 語法檢查 | ✅ 全部通過 |
+| 私人資料掃描 | ✅ 0 筆洩漏 |
+| Git 提交推送 | ✅ 9f2ce6a 已推送 |
+
+---
+
+### 🟢 下一步
+專案已完成 SCOPE.md 定義的所有階段（Phase 0-5），並通過 Phase 6 驗證。GitHub repo 公開可用，使用者可透過一鍵指令安裝。
+
+---
+
 ## 2026-10-07 10:45 ✅ 完成 README 心跳說明強化 + 新增 validate.sh
 
 ### 🎯 結論
@@ -40,7 +144,7 @@ $ head -90 /Users/macmima1234/root/ajd/README.md | tail -40
 
 ### The Key Insight
 
-> **"Ran but no heartbeat" is the most valuable alert.
+> **"Ran but no heartbeat" is the most valuable alert.**
 ```
 
 心跳說明強化完成。
