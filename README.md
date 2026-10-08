@@ -95,7 +95,36 @@ curl -X POST http://localhost:5080/api/heartbeat \
 |----------|-------------|
 | [AGENTS.md](./AGENTS.md) | Setup guide for AI agents (Hermes, Claude, Cursor, etc.) |
 | [SETUP.md](./SETUP.md) | Manual setup (no AI agent required) |
+| [USAGE.md](./docs/USAGE.md) | Quick start: your first job in 5 minutes |
 | [README-zh.md](./README-zh.md) | 中文說明 |
+
+## Quick Reference
+
+**Installation:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/hongchikuo-bot/ajd/main/install.sh | bash
+```
+
+**Your jobs go in your registry. Start with a small example:**
+```jsonc
+// $AJD_HOME/projects.json
+{
+  "projects": {
+    "my-daily-report": {
+      "name": "Daily Report",
+      "type": "排程",
+      "profile": "daily_ops",
+      "desc": "Generates daily report at 23:00",
+      "entry": {
+        "排程腳本": "/root/agent/scripts/generate_report.py",
+        "產出": "/tmp/reports"
+      }
+    }
+  }
+}
+```
+
+For more details, see [USAGE.md](./docs/USAGE.md).
 
 ---
 

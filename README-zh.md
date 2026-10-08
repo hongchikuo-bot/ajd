@@ -23,7 +23,7 @@
 
 - ✅ 追蹤多個 job 的運行情況（每日報表、股票匯總、系統日誌等）
 - ✅ 自動收聽 heartbeat 心跳訊號，即時發現失敗的 cron job
-- ✅ 將個人化的 dashboard「~/root/dashboard/」拆成可部署的工程
+- ✅ 將個人化的 dashboard「your dashboard/」拆成可部署的工程
 
 > **安全規則**：AJD **絕對不會上傳任何資料**。所有操作在本機執行，符合使用者自己的 Agent Safety Policy。
 

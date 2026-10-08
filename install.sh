@@ -18,9 +18,38 @@ NO_AGENT="${NO_AGENT:-false}"
 # GitHub raw base URL (set when installing from GitHub)
 GITHUB_RAW="${GITHUB_RAW:-https://raw.githubusercontent.com/hongchikuo-bot/ajd/main}"
 
-echo "=== AJD Installation ===" 
+echo "=== AJD Installation ==="
 echo "Install directory: $AJD_HOME"
 echo "Service port: $PORT"
+echo ""
+
+# ── Agent Detection ──
+echo "🔍 Detecting AI agents on this machine..."
+AGENTS_FOUND=()
+if [ -d "$HOME/.hermes" ]; then
+    AGENTS_FOUND+=("Hermes ($HOME/.hermes)")
+fi
+if [ -f "$HOME/CLAUDE.md" ] || [ -d "$HOME/.claude" ]; then
+    AGENTS_FOUND+=("Claude ($HOME/CLAUDE.md or $HOME/.claude)")
+fi
+if [ -d "$HOME/.cursor" ]; then
+    AGENTS_FOUND+=("Cursor ($HOME/.cursor)")
+fi
+if [ -d "$HOME/.windsurf" ]; then
+    AGENTS_FOUND+=("Windsurf ($HOME/.windsurf)")
+fi
+if [ -f "$HOME/.config/opencode/config.toml" ]; then
+    AGENTS_FOUND+=("OpenCode ($HOME/.config/opencode)")
+fi
+
+if [ ${#AGENTS_FOUND[@]} -gt 0 ]; then
+    echo "✅ Found AI agents:"
+    for a in "${AGENTS_FOUND[@]}"; do
+        echo "   - $a"
+    done
+else
+    echo "ℹ️  No known AI agent configs detected."
+fi
 echo ""
 
 # Create directories
@@ -142,11 +171,68 @@ fi
 
 echo ""
 echo "🦾 Agent Configuration:"
-echo "Copy this to your agent's config (e.g., ~/.hermes/profiles/default/memories/config for Hermes):"
-echo "AJD_URL=\"http://127.0.0.1:$PORT/\""
+
+# Print agent-specific instructions based on detection
+if [[ " ${AGENTS_FOUND[*]} " =~ "Hermes" ]]; then
+    echo "📦 Hermes detected — add to ~/.hermes/profiles/default/memories/config:"
+    echo "   AJD_URL=\"http://127.0.0.1:$PORT/\""
+    echo ""
+fi
+
+if [[ " ${AGENTS_FOUND[*]} " =~ "Claude" ]]; then
+    echo "📦 Claude detected — add to your Claude config (CLAUDE.md or settings):"
+    echo "   {"
+    echo "     \"ai-jobs\": {"
+    echo "       \"dashboardUrl\": \"http://127.0.0.1:$PORT/\","
+    echo "       \"registryPath\": \"$AJD_HOME/projects.json\","
+    echo "       \"respectAGENTSmd\": true"
+    echo "     }"
+    echo "   }"
+    echo ""
+fi
+
+if [[ " ${AGENTS_FOUND[*]} " =~ "Cursor" ]]; then
+    echo "📦 Cursor detected — add to .cursor/mcp.json or settings:"
+    echo "   {"
+    echo "     \"ai-jobs\": {"
+    echo "       \"dashboardUrl\": \"http://127.0.0.1:$PORT/\","
+    echo "       \"registryPath\": \"$AJD_HOME/projects.json\","
+    echo "       \"respectAGENTSmd\": true"
+    echo "     }"
+    echo "   }"
+    echo ""
+fi
+
+if [[ " ${AGENTS_FOUND[*]} " =~ "Windsurf" ]]; then
+    echo "📦 Windsurf detected — add to ~/.windsurf/config.json:"
+    echo "   {"
+    echo "     \"ai-jobs\": {"
+    echo "       \"dashboardUrl\": \"http://127.0.0.1:$PORT/\","
+    echo "       \"registryPath\": \"$AJD_HOME/projects.json\","
+    echo "       \"respectAGENTSmd\": true"
+    echo "     }"
+    echo "   }"
+    echo ""
+fi
+
+if [[ " ${AGENTS_FOUND[*]} " =~ "OpenCode" ]]; then
+    echo "📦 OpenCode detected — add to ~/.config/opencode/config.toml:"
+    echo "   [ai-jobs]"
+    echo "   dashboardUrl = \"http://127.0.0.1:$PORT/\""
+    echo "   registryPath = \"$AJD_HOME/projects.json\""
+    echo "   respectAGENTSmd = true"
+    echo ""
+fi
+
+# Generic fallback
+echo "📋 For any agent (or manual setup), see AGENTS.md in $AJD_HOME"
+echo "   Dashboard: http://127.0.0.1:$PORT/"
+echo "   Config:    $AJD_HOME/projects.json (edit with your projects)"
 echo ""
-echo "Or see AGENTS.md in $AJD_HOME for more agent examples (Claude, Cursor, etc.)"
+echo "⚠️  IMPORTANT: The commands above will invoke YOUR LOCAL AGENT."
+echo "   AJD does NOT upload any data. All configuration happens on your machine."
 echo ""
+
 echo "✅ AJD installation complete!"
 echo "   Dashboard: http://127.0.0.1:$PORT/"
 echo "   Config:    $AJD_HOME/projects.json (edit with your projects)"

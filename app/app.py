@@ -16,14 +16,22 @@ from datetime import datetime, timedelta, timezone
 
 from flask import send_from_directory, Flask, jsonify, request, render_template, redirect, Response
 
+# Adapter layer imports
+from adapters.registry import discover_schedulers, discover_services
+
 HOME = os.path.expanduser("~")
 # AJD_HOME: 安裝目錄（內含 app.py / static / templates / data / projects.json）
-# 預設值 = app.py 所在目錄，安裝腳本會設成 ~/root/ajd/
-DASH = os.environ.get("AJD_HOME") or os.path.dirname(os.path.abspath(__file__))
+# 預設值 = app.py 所在目錄，安裝腳本會設成 $HOME/.ajd
+# 舊版 ~/root/dashboard/ 是 kk 的私人版，AJD 引擎應放在 $HOME/.ajd
+DAJ = HOME + "/.ajd"  # 通用 AJD 安裝目錄（不含任何個人資料）
+DASH = os.environ.get("AJD_HOME") or DAJ
 SNAP_DIR = os.path.join(DASH, "data", "snapshots")
 IDEAS_FILE = os.path.join(DASH, "data", "ideas.jsonl")
 BACKLOG_FILE = os.path.join(DASH, "data", "backlog.json")
 REGISTRY = os.path.join(DASH, "projects.json")
+HEARTBEAT_FILE = os.path.join(DASH, "data", "heartbeats.jsonl")
+HEARTBEAT_MAP_FILE = os.path.join(DASH, "data", "heartbeat_map.json")
+TOKEN_FILE = os.path.join(DASH, "data", "access_token.txt")
 PORT = int(os.environ.get("AJD_PORT", "5080"))
 TW = timezone(timedelta(hours=8))
 
@@ -400,6 +408,19 @@ def api_state():
         "history": history_diffs(snaps)[:14],
         "heartbeats": with_aliases(load_heartbeats()[0]),
     })
+
+
+@app.route("/api/schedulers")
+def api_schedulers():
+    """所有排程來源的統一檢視（crontab / launchd / systemd / hermes）。"""
+    return jsonify(discover_schedulers())
+
+
+@app.route("/api/services")
+def api_services():
+    """所有服務檢查來源的統一檢視（port / http / docker）。"""
+    reg = load_registry()
+    return jsonify(discover_services(reg))
 
 
 @app.route("/api/project/<name>")

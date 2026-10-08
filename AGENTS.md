@@ -11,7 +11,7 @@
 **AJD (AI Agents Job Dashboard)** 是一個通用的 AI Agent 工作監控框架，讓你可以：
 - 追蹤多個 job 的運行情況（每日報表、股票匯總、系統日誌等）
 - 自動收聽 heartbeat 心跳訊號，即時發現失敗的 cron job
-- 將個人化的 dashboard（`~/root/dashboard/`）拆成可部署的工程
+- 將個人化的 dashboard（`your dashboard/`）拆成可部署的工程
 
 ---
 

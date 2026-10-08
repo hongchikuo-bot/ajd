@@ -29,12 +29,12 @@ curl -fsSL https://raw.githubusercontent.com/hongchikuo-bot/ajd/main/install.sh 
 AJD_HOME="$HOME/my-ajd" curl -fsSL https://raw.githubusercontent.com/hongchikuo-bot/ajd/main/install.sh | bash
 ```
 
-安裝完成後，記下 `AJD_HOME` 的路徑（預設 `~/root/ajd`）。
+安裝完成後，記下 `AJD_HOME` 的路徑（預設 `$HOME/.ajd`）。
 
 ### 2. 設定環境變數
 
 ```bash
-export AJD_HOME="$HOME/root/ajd"          # 你的安裝目錄
+export AJD_HOME="$HOME/.ajd"          # 你的安裝目錄
 export AJD_URL="http://localhost:5080/"   # Dashboard 位址
 ```
 
@@ -131,7 +131,7 @@ services:
 
 | 現象 | 可能原因 | 對策 |
 |------|----------|------|
-| `curl $AJD_URL` 非 200 | 服務未啟動 / port 衝突 | 檢查 `data/app.log`；改 `DASH_PORT` 重裝 |
+|| `curl $AJD_URL` 非 200 | 服務未啟動 / port 衝突 | 檢查 `$AJD_HOME/data/logs/server.log`；改 `PORT=5199` 重裝 |
 | `curl $AJD_URL/api/state` 回 401/403 | 私人版有 auth | 通用版無 auth；確認用正確 repo |
 | heartbeat 送出但面板未更新 | job name 不匹配 | `projects.json` 的 job name 必須與 heartbeat 的 `job` 一致 |
 | job 成功但心跳失敗 | network / firewall | 確認 localhost 連線；檢查防火牆規則 |
