@@ -508,6 +508,103 @@ $ git push origin main → To https://github.com/hongchikuo-bot/ajd.git c3ccc69.
 | README-zh verification | ✅ OK (heartbeat section comprehensive) |
 | Public repo integrity | ✅ docs/screenshot-*.png / ci/github-actions.yml preserved |
 
-✅ Phase 5 complete! No items remaining blocked.
+✅ Phase 5 complete! Ready for GitHub publish (pending OAuth token refresh).
+
+🔧 Final push status: GitHub API returns refusing to allow an OAuth App to create or update workflow files without 'workflow' scope（user memory 記載此為已知）。可手動從 GitHub UI 完成推送或刷新 token。
 
 ---
+---
+
+## 2026-10-08 21:50 ✅ Phase 5: Whitepaper complete
+
+### ✅ Task Summary
+| Item                          | Status | Notes                                                    |
+|-------------------------------|--------|----------------------------------------------------------|
+| WHITEPAPER.md creation        | ✅ Done| Mult-agent architecture abstract + design principles    |
+| No private data leakage       | ✅ Verified | Abstract only, no news_auto / stock_auto references    |
+
+### ✅ Output Files
+```bash
+/Users/macmima1234/root/ajd/docs/WHITEPAPER.md (225 lines, 7.9KB)
+```
+
+### 🔍 Verification Results
+#### 1. File statistics
+```bash
+$ wc -l /Users/macmima1234/root/ajd/docs/WHITEPAPER.md
+225 /Users/macmima1234/root/ajd/docs/WHITEPAPER.md
+✅ verified, 225 lines total
+```
+
+#### 2. Private data scan (manual content check)
+- Section 1.1: Problem space (organic ecosystem growth, silent failures) ✅
+- Section 2: Generic adapter layer principle ✅  
+- Section 3: Trade-offs (why no API, why not Docker-only, why not OAuth) ✅
+- Appendix A: Heartbeat schema definition ✅
+- Appendix B: Example endpoint URLs ✅
+✅ No sensitive project names or personal data exposed
+
+### 📋 Final Status Summary
+| Item                                | Status            |
+|-------------------------------------|-------------------|
+| Phase 5 Whitepaper completion       | ✅ Done           |
+| docs/WHITEPAPER.md created          | ✅ Verified (225L)|
+| Private data compliance             | ✅ No leakage     |
+
+### 🟢 Next Steps
+Phase 5 complete. Final state: All Scope.md phases done.
+
+1. Review WHITEPAPER.md content and confirm it matches design intent
+2. Proceed to GitHub publish via UI push (known OAuth workflow limitation)
+3. Final test run from clean environment with raw install
+
+### 卡住
+None — Phase 5 complete, awaiting GitHub UI push for final release.
+---
+
+## 2026-10-08-21:48 ✅ Phase 5: Whitepaper complete
+
+### ✅ Task Summary
+| Item                          | Status | Notes                                                    |
+|-------------------------------|--------|----------------------------------------------------------|
+| WHITEPAPER.md creation        | ✅ Done| Mult-agent architecture abstract + design principles    |
+| No private data leakage       | ✅ Verified | Abstract only, no news_auto / stock_auto references    |
+
+### ✅ Output Files
+```bash
+/Users/macmima1234/root/ajd/docs/WHITEPAPER.md (225 lines, 7.9KB)
+```
+
+### 🔍 Verification Results
+#### 1. File statistics
+```bash
+$ wc -l /Users/macmima1234/root/ajd/docs/WHITEPAPER.md
+225 /Users/macmima1234/root/ajd/docs/WHITEPAPER.md
+✅ verified, 225 lines total
+```
+
+#### 2. Private data scan (manual content check)
+- Section 1.1: Problem space (organic ecosystem growth, silent failures) ✅
+- Section 2: Generic adapter layer principle ✅  
+- Section 3: Trade-offs (why no API, why not Docker-only, why not OAuth) ✅
+- Appendix A: Heartbeat schema definition ✅
+- Appendix B: Example endpoint URLs ✅
+✅ No sensitive project names or personal data exposed
+
+### 📋 Final Status Summary
+| Item                                | Status            |
+|-------------------------------------|-------------------|
+| Phase 5 Whitepaper completion       | ✅ Done           |
+| docs/WHITEPAPER.md created          | ✅ Verified (225L)|
+| Private data compliance             | ✅ No leakage     |
+
+### 🟢 Next Steps
+Phase 5 complete. Final state: All Scope.md phases done.
+
+1. Review WHITEPAPER.md content and confirm it matches design intent
+2. Proceed to GitHub publish via UI push (known OAuth workflow limitation)
+3. Final test run from clean environment with raw install
+
+### 卡住
+None — Phase 5 complete, awaiting GitHub UI push for final release.
+
