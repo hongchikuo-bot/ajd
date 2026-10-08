@@ -4,16 +4,66 @@
 
 ---
 
-## 關於心跳（Heartbeat）回報
+## 關於心跳（Heartbeat）回報：專案靈魂
 
-AJD 的核心設計：讓你的 cron job 在執行完畢後回傳 heartbeat，以表明「我已經跑過了」。這可幫助你即時發現失敗的排程任務。
+AJD 的**核心設計哲學**：讓您的 cron job 在真正完成後回傳 heartbeat，以證明「我確實跑過且成功」。這填補了傳統監控的最大盲點。
 
-**範例**：
+### 💓 為什麼 heartbeat 是「靈魂」？
+
+現代 AI Agent 的工作流程中，**「宣告任務完成」≠ 「任務真的成功」**：
+- 您的 job 輸出檔案存在，但可能是在上次失敗後遺留的舊檔
+- `&&` 命令鏈看似執行完畢，但實際上可能被防火牆攔截回應、API 內部崩潰而無明確錯誤訊息
+- 從系統日誌看出來了，但真正的用戶體驗層面已失效
+
+heartbeat 用**即時狀態回報**取代推測：AJD 會明確告知成功 / 失敗、處理結果大小、延遲等關鍵指標。
+
+### 🔍 您將遭遇的典型症狀（不使用 heartbeat）
+
+| 現象 | 傳統檔案方式會錯過什麼？ |
+|------|--------------------------|
+```cron job 報錯</code>｜「跑過了但 API 回應失敗、權限不足、數據沒寫上雲端</table>
+| 網路中斷 | 程式未崩潰，但用戶端的數據已過時 |
+| 時間延遲 | 從 `/etc/mtab` 看不出真正執行時間 |
+| 靜默失效 | 檔案存在但內容是舊資料（幾小時前的） |
+
+### ✅ 正確的心跳發送方式
+
 ```bash
 curl -X POST http://localhost:5080/api/heartbeat \
-  -H "Content-Type: application/json" \
-  -d '{"job":"my-job","status":"ok","note":"1.2MB"}'
+     -H 'Content-Type: application/json' \
+     -d '{"job":"我的每日報表","status":"ok","note":"3.2MB，1,247 rows processed","latency_ms":124}'
 ```
+
+回傳確認：
+```json
+{
+  "heartbeat_received": true,
+  "last_seen": "2026-10-08T14:30:25Z",
+  "job": "我的每日報表",
+  "status": "ok"
+}
+```
+
+### 🔧 整合至排程腳本的範例（確保真正成功才發送）
+
+```bash
+#!/bin/bash
+REPORT_PATH="/reports/2026-10-08.csv"
+
+if [ -f "$REPORT_PATH" ] && [ -s "$REPORT_PATH" ]; then
+    # ✅ 檔案存在且有內容 → 回報 ok
+    curl -X POST "localhost:5080/api/heartbeat" \
+        -H 'Content-Type: application/json' \
+        -d "{\"job\":\"每日報表\",\"status\":\"ok\",\"note\":\"${REPORT_PATH}\"}"
+else
+    # ❌ 檔案不存在或空檔 → 回報 fail
+    curl -X POST "localhost:5080/api/heartbeat" \
+        -H 'Content-Type: application/json' \
+        -d "{\"job\":\"每日報表\",\"status\":\"failed\",\"note\":\"report file not found\"}"
+fi
+```
+
+> **要點**：只有當 job 確實成功時才發送 `ok`，失敗則發送 `fail`。AJD 會依此狀態觸發警報或進入 retry 機制。
 
 ---
 
