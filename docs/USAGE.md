@@ -152,13 +152,35 @@ After starting (`app/app.py`), use these endpoints:
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/` | GET | Open dashboard in browser |
-| `/api/state` | GET | JSON state with job list, heartbeats, status |
+| `/api/state` | GET | JSON state with **projects** (not jobs), heartbeats, status |
+| `/api/schedulers` | GET | List schedulers: crontab/hermes/launchd/systemd job counts and samples |
+| `/api/services` | GET | List service registry: docker/http/port sources availability |
 | `/api/heartbeat` | POST | Send a heartbeat from a cron script |
 
 Example:
 
 ```bash
 curl http://localhost:5080/api/state -s | jq '.'
+```
+
+### New Endpoints (v0.4.1+)
+
+The `/api/schedulers` and `/api/services` endpoints expose the underlying adapter layer, 
+letting you inspect what AJD could monitor on this host without modifying projects.json.
+
+**Usage:**
+
+```bash
+# See which schedulers are available
+curl http://localhost:5080/api/schedulers
+
+# See service registry status
+curl http://localhost:5080/api/services
+
+# Submit heartbeat from any script (no agent required)
+curl -X POST http://localhost:5080/api/heartbeat \
+  -H 'Content-Type: application/json' \
+  -d '{"job":"my-job","status":"ok"}'
 ```
 
 ## Validation Check
