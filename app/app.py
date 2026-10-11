@@ -576,4 +576,9 @@ def api_backlog_remove(pid):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=PORT, debug=False)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--port", type=int, help="Port to listen on")
+    args = parser.parse_args()
+    port = args.port or PORT
+    app.run(host="0.0.0.0", port=port, debug=False)
