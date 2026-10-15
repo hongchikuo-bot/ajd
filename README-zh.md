@@ -210,10 +210,24 @@ curl http://localhost:5080/api/heartbeats | jq '.[]'
 
 ---
 
+## 文檔
+
+| 文件 | 說明 |
+|----------|-------------|
+| [AGENTS.md](AGENTS.md) | AI Agent 設定指南（Hermes、Claude、Cursor 等）與 AGENTS.md 配置 |
+| [SETUP.md](SETUP.md) | 手動設定說明（不使用 AI Agent） |
+| [INSTALL_GUIDE.md](docs/INSTALL_GUIDE.md) | 完整安裝指南（Docker / 非 Docker、平台特定配置） |
+| [FAQ.md](docs/FAQ.md) | 常見問題、使用者經驗分享的疑難排解提示 |
+| [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | 詳細錯誤訊息與常見問題的解決方案 |
+| [USAGE.md](docs/USAGE.md) | 快速入門指南：5 分鐘建立您的第一個 job |
+| [README.md](./README.md) | 完整英文說明 |
+
+---
+
 ## 相關連結
 
 - [GitHub 專案](https://github.com/hongchikuo-bot/ajd)
-- [發布註記 (v0.4.0)](https://github.com/hongchikuo-bot/ajd/releases/tag/v0.4.0)
+- [發布註記 (v0.5.0)](https://github.com/hongchikuo-bot/ajd/releases/tag/v0.5.0)
 - 📖 [完整英文說明](./README.md)
 
 ---
