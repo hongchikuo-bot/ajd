@@ -91,11 +91,15 @@ curl -X POST http://localhost:5080/api/heartbeat \
 
 ## Documentation
 
+
 | Document | Description |
 |----------|-------------|
-| [AGENTS.md](./AGENTS.md) | Setup guide for AI agents (Hermes, Claude, Cursor, etc.) |
-| [SETUP.md](./SETUP.md) | Manual setup (no AI agent required) |
-| [USAGE.md](./docs/USAGE.md) | Quick start: your first job in 5 minutes |
+| [AGENTS.md](AGENTS.md) | AI agent setup guide (Hermes, Claude, Cursor, etc.) and AGENTS.md configuration |
+| [SETUP.md](SETUP.md) | Manual setup instructions (without AI agent) |
+| [INSTALL_GUIDE.md](docs/INSTALL_GUIDE.md) | Comprehensive installation guide (Docker / non-Docker, platform-specific configs) |
+| [FAQ.md](docs/FAQ.md) | Frequently asked questions, troubleshooting tips from users' experience |
+| [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Detailed error messages and solutions for common issues |
+| [USAGE.md](docs/USAGE.md) | Quick start guide: your first job in 5 minutes |
 | [README-zh.md](./README-zh.md) | 中文說明 |
 
 ## Quick Reference
@@ -144,7 +148,7 @@ Screenshots demonstrate:
 ## Related Links
 
 - [GitHub Repository](https://github.com/hongchikuo-bot/ajd)
-- [Release Notes (v0.4.0)](https://github.com/hongchikuo-bot/ajd/releases/tag/v0.4.0)
+- [Release Notes (v0.5.0)](https://github.com/hongchikuo-bot/ajd/releases/tag/v0.5.0)
 
 ---
 
