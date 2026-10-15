@@ -1,5 +1,57 @@
-## 2026-10-15 10:35 ✅ Phase 4 Clean-Directory Install Verification Complete — End-to-End Installation Test Passed
+## 2026-10-15 11:00 ✅ Phase 9 Finalization — README Version Fixed, All Docs Committed, Ready for GitHub Push
 
+**狀態**: 修正 README.md 版本不一致 (v0.4.0 → v0.5.0)，提交所有 Phase 8/9 文檔檔案，工作目錄乾淨，準備 GitHub 推送。
+
+### 📝 Deliverable
+- **README.md**: Release Notes link updated from v0.4.0 to v0.5.0 (line 151)
+- **README-zh.md**: Documentation table added (matching EN README), release link updated to v0.5.0
+- **Phase 8 docs committed**: `docs/INSTALL_GUIDE.md`, `docs/FAQ.md`, `docs/TROUBLESHOOTING.md`
+- **All modified files committed**: 2 commits, 6 files changed, working tree clean
+
+### ✅ Verification (All Commands Executed & Output Captured)
+
+```bash
+# 1. Fix README.md version inconsistency
+cd /Users/macmima1234/root/ajd && patch README.md (v0.4.0 → v0.5.0)
+# → Success
+
+# 2. Commit Phase 8 docs + README fixes
+git add docs/INSTALL_GUIDE.md docs/FAQ.md docs/TROUBLESHOOTING.md README.md QUESTIONS.md PROGRESS.md
+git commit -m "Phase 9: Fix README version to v0.5.0, add user docs"
+# → [release/v0.5.0 62deffd] 6 files changed, 1519 insertions(+), 66 deletions(-)
+
+# 3. Commit README-zh.md docs table + version fix
+git add README-zh.md
+git commit -m "Phase 9: Update README-zh.md docs table and release link to v0.5.0"
+# → [release/v0.5.0 f2b562a] 1 file changed, 15 insertions(+), 1 deletion(-)
+
+# 4. Verify clean working tree
+git status
+# → On branch release/v0.5.0 ... nothing to commit, working tree clean
+
+# 5. Verify branch ahead of origin/main
+git log --oneline -5
+# → f2b562a Phase 9: Update README-zh.md docs table and release link to v0.5.0
+# → 62deffd Phase 9: Fix README version to v0.5.0, add user docs (INSTALL_GUIDE, FAQ, TROUBLESHOOTING)
+# → 770942e Phase 6: Complete project release v0.5.0, update PROGRESS.md, publish to GitHub
+# → 6c7afcf Phase 5-6: Cherry-pick Phase 4/5 commits, push release/v0.5.0 branch, create v0.5.0 tag
+# → 5accb2d Update PROGRESS.md: install.sh syntax check verified, Phase 4 progress recorded
+```
+
+### 🔗 Cross-References Updated
+- **README.md** Documentation table: 7 entries (AGENTS.md, SETUP.md, INSTALL_GUIDE.md, FAQ.md, TROUBLESHOOTING.md, USAGE.md, README-zh.md)
+- **README-zh.md** 文檔 table: 7 entries (matching EN)
+- **Release Notes links**: Both now point to v0.5.0
+
+### 🟢 Next Step (requires kk)
+**Only remaining task: GitHub Push** — choose Option A (Web UI) or Option B (regenerate token with `workflow` scope). All technical work complete, verified, and committed.
+
+### 🚫 Blocked
+- GitHub push requires kk action (OAuth token lacks `workflow` scope)
+
+---
+
+## 2026-10-15 10:35 ✅ Phase 4 Clean-Directory Install Verification Complete — End-to-End Installation Test Passed
 **狀態**: 在乾淨目錄環境照文件從零裝一次（SCOPE.md Phase 4「最重要的一步」），完整驗證 install.sh 從 GitHub raw 下載、部署、啟動服務、端點驗證、heartbeat 回報全流程。
 
 ### 📝 Deliverable
