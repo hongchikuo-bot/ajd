@@ -220,6 +220,203 @@ AJD is not a replacement for existing tools; it's a **complement** that fills th
 
 ---
 
-**Version**: 0.5-alpha (Phase 5 Whitepaper)  
-**Status**: Draft for initial GitHub publish  
-**License**: MIT
+## 9. Operational Mode
+
+### 9.1 Daily Health Checks
+
+AJD runs silently in the background. Your agent (or cron) fires heartbeats every time a job completes:
+
+```python
+# Python example - your job's cleanup routine
+import requests, json
+
+requests.post(
+    "http://localhost:5080/api/heartbeat",
+    json={
+        "job": "daily-report",
+        "status": "ok",
+        "note": f"Generated {len(generated_files)} files"
+    }
+)
+```
+
+**No heartbeat after expected time?** That's your failure signal. Check the job script, not the file system.
+
+### 9.2 Failure Scenarios Handled
+
+| Scenario | File-timestamp approach | Heartbeat approach |
+|----------|-------------------------|--------------------|
+| Job hangs mid-run | ❌ File exists but incomplete | ✅ `status: failed` reported |
+| Cron fires, script crashes | ❌ Empty error log | ✅ `status: error` with message |
+| Network partitions | ❌ Can't tell if job ran | ✅ Last known good heartbeat shown |
+| Agent restarts | ❌ Lost state info | ✅ Heartbeat resume from last point |
+
+### 9.3 Backlog Recovery
+
+AJD tracks a backlog of jobs that haven't heartbeated:
+
+```text
+Backlog queue: 2 jobs (news_daily_0, stock_morning_1)
+→ Agent reruns on next conversation
+→ Manual trigger via `ajd --retry <job-id>` (SETUP.md)
+```
+
+This is crucial for high-stakes workflows (daily reports, compliance logs).
+
+---
+
+## 10. Deployment Reference
+
+### 10.1 Minimal Docker Setup
+
+```dockerfile
+# Dockerfile - single service container
+FROM python:3.12-slim
+WORKDIR /app
+COPY app/ ./app
+RUN pip install -r requirements.txt
+EXPOSE 5080
+CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5080"]
+```
+
+**Why single-container?** Keep it simple. Your heartbeat endpoints can be any service — even external webhooks. AJD doesn't need a monolith.
+
+### 10.2 Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AJD_HOST` | 0.0.0.0 | Bind address |
+| `AJD_PORT` | 5080 | HTTP port |
+| `AJD_LOG_LEVEL` | info | Logging verbosity |
+
+### 10.3 Service Health Check
+
+The dashboard exposes `/api/state`:
+
+```bash
+curl http://localhost:5080/api/state
+# {"jobs": ["news_daily"], "backlog": [], "status": "ok"}
+```
+
+Use this in your own monitoring (Prometheus, Datadog, or custom scripts).
+
+---
+
+## 11. Extending AJD
+
+### 11.1 Adding a New Scheduler Adapter
+
+Create in `$ADAPTERS_DIR/adapters.py`:
+
+```python
+# example extension
+from ajd.adapters import SCHEDULER, SchedulerAdapter
+
+@SCHEDULER.register("systemd")
+class SystemdAdapter(SchedulerAdapter):
+    def discover(self, base_dir: str):
+        # Parse /etc/systemd/timers.d/
+        return {"unit": "my-job.timer", "pattern": ".log"}
+```
+
+The adapter protocol stays stable. Core doesn't care how you run jobs — only that they heartbeat.
+
+### 11.2 Custom Heartbeat Format
+
+If your backend can't POST JSON directly, create a webhook listener:
+
+```bash
+# Run anywhere - systemd service, Docker sidecar, etc.
+curl -X POST http://localhost:3000/heartbeat \
+     -H 'Content-Type: application/json' \
+     -d @status.json
+```
+
+AJD receives it at `/proxy/your-service` and routes accordingly.
+
+### 11.3 Contributing Guidelines
+
+1. Fork the repo
+2. Add adapter to `$ADAPTERS_DIR/adapters.py`
+3. Document in docs/ADAPTERS.md
+4. Submit PR with test cases
+
+See `.github/CONTRIBUTING.md` for guidelines.
+
+---
+
+## 12. Security Considerations
+
+### 12.1 Local-Only Philosophy
+
+AJD assumes a trusted machine:
+- No external API endpoints (except configured webhooks)
+- Heartbeats logged to local file system only
+- User-provided paths via environment variables
+
+**Never expose `/api/state` to the internet without**:
+- Network segmentation
+- TLS termination at edge
+- Rate limiting middleware
+
+### 12.2 Path Sanitization
+
+User-supplied paths are validated:
+
+```python
+import os.path
+
+def validate_path(path: str, allowed_base: str) -> str:
+    real = os.path.realpath(os.path.expandvars(path))
+    real_base = os.path.realpath(allowed_base)
+    if not real.startswith(real_base):
+        raise ValueError("Path escapes base directory")
+    return path
+```
+
+Prevents path traversal (`../`) and absolute path injection.
+
+### 12.3 Rate Limiting
+
+Heartbeats are rate-limited to prevent abuse:
+
+```python
+# app.py example - use Flask-Limiter or similar
+@app.route("/api/heartbeat", methods=["POST"])
+@limiter.limit("10 per minute")
+def capture_heartbeat():
+    ...
+```
+
+Adjust limits based on your heartbeat frequency.
+
+---
+
+## 13. Comparison with Alternatives
+
+| Feature | AJD | Airflow | Prefect | Custom cron scripts |
+|---------|-----|---------|---------|---------------------|
+| Heartbeat-first design | ✅ Yes | ❌ Scheduler-centric | ⚠️ Partial | ❌ No |
+| Local-only enforcement | ✅ Yes | ⚠️ Cloud-first | ⚠️ Hybrid | ✅ Yes (but no cross-view) |
+| Generic adapter layer | ✅ Yes | ❌ Custom per source | ⚠️ Plugin system | ❌ None |
+| Zero-auth setup | ✅ Yes | ⚠️ Optional OIDC | ⚠️ Optional auth | ✅ Yes |
+| Cross-agent visibility | ✅ Yes (via API) | ❌ Airflow-only | ❌ Prefect-only | ❌ Impossible |
+
+**AJD's niche**: Lightweight, heartbeat-driven visibility for heterogeneous agent ecosystems.
+
+---
+
+## 14. License
+
+AJD is released under the MIT License. See `./LICENSE` for details.
+
+Key contributions:
+- Heartbeat pattern abstraction (inspired by kk's production setup)
+- Generic adapter interface (enables multi-scheduler support)
+- Local-only enforcement (privacy-first design)
+
+---
+
+*Version*: 0.5.1-alpha (Phase 8 Whitepaper Enhancement)  
+*Status*: Ready for GitHub publish  
+*License*: MIT

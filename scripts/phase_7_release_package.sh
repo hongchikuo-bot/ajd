@@ -16,16 +16,19 @@ echo "📦 Target: ~/root/ajd_release_v1.zip"
 echo ""
 
 DEST_DIR="$HOME/root/ajd_release_v1"
+ZIP_FILE="$HOME/root/ajd_release_v1.zip"
 # Clean up previous build
 rm -rf "$DEST_DIR" 2>/dev/null || true
+rm -f "$ZIP_FILE" 2>/dev/null || true
 mkdir -p "$DEST_DIR"
 
-echo "📥 Copying app/ (excluding runtime data)..."
+echo "📥 Copying app/ (excluding runtime data and user config)..."
 rsync -a "$AJD_ROOT/app/" "$DEST_DIR/app/" \
     --exclude="__pycache__/" \
     --exclude="data/" \
     --exclude="*.pyc" \
-    --exclude="*.log" || echo "⚠️  app/ skip"
+    --exclude="*.log" \
+    --exclude="/projects.json" || echo "⚠️  app/ skip"
 
 echo "📥 Copying docs/screenshot-*.png..."
 mkdir -p "$DEST_DIR/docs"
@@ -69,7 +72,7 @@ echo ""
 echo "📦 Creating release package..."
 (
     cd "$HOME/root/ajd_release_v1"
-    zip -r -9 ~/root/ajd_release_v1.zip \
+    zip -r -9 "$ZIP_FILE" \
         README.md README-zh.md AGENTS.md SETUP.md LICENSE SCOPE.md WHITEPAPER.md \
         app/ docs/*.png \
         install.sh scripts/*.sh 2>/dev/null || echo "⚠️  zip skip"
@@ -77,7 +80,7 @@ echo "📦 Creating release package..."
 
 echo ""
 echo "📊 Package info..."
-ls -lh ~/root/ajd_release_v1.zip && echo ""
+ls -lh "$ZIP_FILE" && echo ""
 echo "✅ Phase 7 — 出貨套件組裝完成！"
 echo ""
 

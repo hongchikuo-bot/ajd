@@ -200,13 +200,11 @@ curl http://localhost:5080/api/heartbeats | jq '.[]'
 
 ---
 
-## 展示影片
+## 📷 Screenshots
 
-稍候提供螢幕錄影，包含：
-
-- 🎬 AI Job **總覽與實際 job 狀態** — 視覺化呈現所有 project 的現況
-- 💥 **心跳失敗即時警報演示** — 展示 heartbeat 斷線時的快速通知流程
-- 🔄 **手動回報 heartbeat** — 模擬 success / failed兩種情況
+以下是監控面板的截圖：
+- `./docs/screenshot-desktop.png` — 桌面視圖
+- `./docs/screenshot-mobile.png` — 手視圖
 
 ---
 

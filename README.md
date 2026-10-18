@@ -132,11 +132,11 @@ For more details, see [USAGE.md](./docs/USAGE.md).
 
 ---
 
-## Demo Video
+## Screenshots
 
-The dashboard is ready with screenshots in `docs/`:
-- `docs/screenshot-desktop.png` — Desktop view
-- `docs/screenshot-mobile.png` — Mobile view
+The dashboard screenshots are included in the repository:
+- `./docs/screenshot-desktop.png` — Desktop view
+- `./docs/screenshot-mobile.png` — Mobile view
 
 Screenshots demonstrate:
 - Dashboard overview with real job status
