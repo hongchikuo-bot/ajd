@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main, release/*]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --no-cache-dir -r app/requirements.txt
+
+      - name: Shell syntax check (bash -n)
+        run: |
+          echo "Checking shell scripts..."
+          for f in install.sh test_clean_install.sh scripts/*.sh; do
+            if [ -f "$f" ]; then
+              bash -n "$f" && echo "✅ $f" || { echo "❌ $f failed"; exit 1; }
+            fi
+          done
+
+      - name: Python syntax check (py_compile)
+        run: |
+          echo "Checking Python files..."
+          python3 -m py_compile app/app.py app/harvest.py app/test_adapters.py
+          for f in app/adapters/**/*.py; do
+            [ -f "$f" ] && python3 -m py_compile "$f" && echo "✅ $f"
+          done
+          for f in scripts/*.py; do
+            [ -f "$f" ] && python3 -m py_compile "$f" && echo "✅ $f"
+          done
+
+      - name: Run adapter tests
+        run: |
+          cd app
+          python3 test_adapters.py
+
+      - name: Verify no private paths in source
+        run: |
+          echo "Scanning for private paths..."
+          # Check for /Users/ paths (excluding test_clean_install.sh which is a test fixture)
+          if grep -r "/Users/" --include="*.py" --include="*.sh" --include="*.md" \
+               --exclude="test_clean_install.sh" \
+               --exclude-dir=.git \
+               --exclude-dir=__pycache__ \
+               --exclude-dir=venv \
+               . ; then
+            echo "❌ Found private /Users/ paths in source files"
+            exit 1
+          else
+            echo "✅ No private paths found"
+          fi
+
+      - name: Verify no private data in projects.json
+        run: |
+          if [ -f app/projects.json ]; then
+            if grep -iE "macmima|hckytbot|kuohome|news_auto|stock_auto|idiom_auto|ethubs|zaiditong|hermesagent|kuo_bot|wabi-sabi" app/projects.json; then
+              echo "❌ Private data found in projects.json"
+              exit 1
+            fi
+            echo "✅ projects.json clean"
+          fi
+
+      - name: Test Docker build
+        run: |
+          docker build -t ajd-test .
+          # Quick smoke test
+          docker run --rm -d -p 5080:5080 --name ajd-smoke ajd-test
+          sleep 5
+          curl -f http://127.0.0.1:5080/ || { docker logs ajd-smoke; exit 1; }
+          docker stop ajd-smoke
+        # Optional: enable when Docker is available in CI
+        # if: runner.os == 'Linux'

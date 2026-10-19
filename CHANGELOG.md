@@ -4,17 +4,7 @@ All notable changes to AJD will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-- Heartbeat mechanism for real-time job failure detection
-- Generic adapter layer for multiple scheduler types (crontab, launchd, systemd, Hermes)
-- AI agent setup guide (`AGENTS.md`) for automatic configuration
-
-### Changed
-- Refactored private dashboard into generic engine with template projects
-
-## [0.5.0] - 2026-10-17
+## [0.5.0] - 2026-10-17 (Ready for Release)
 
 ### Added
 - One-command deployment via `curl | bash` (macOS + Linux)
@@ -29,8 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Removed all personal traces from kk's private dashboard
 
 ### Fixed
-- Generic service health check via HTTP port status
-- Heartbeat API endpoint consistency
+- Generic service health check via HTTP port status code checks
+- Heartbeat API endpoint responses (POST 200/GET 405)
+- Private data removal validation (grep scan: 0 matches for private traces)
 
 ## [0.4.0] - 2026-09-xx
 
