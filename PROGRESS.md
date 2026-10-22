@@ -1,107 +1,211 @@
-## 2026-10-19 21:30 ✅ GitHub Actions CI Workflow Created + Private Path Cleanup
-完成內容：
-- 建立 `.github/workflows/ci.yml`：GitHub Actions CI 流程（Shell 語法檢查、Python 語法檢查、Adapter 測試、私人路徑掃描、Docker 建構驗證）
-- 修正 `test_clean_install.sh`：移除硬編碼 `/Users/macmima1234/root/ajd` 路徑，改用自動偵測的 `SRC_DIR` 變數
-- 修正 `test_heartbeat.py`：移除硬編碼路徑，改用相對路徑自動偵測
-- 所有語法檢查通過（bash -n、py_compile）
-- Clean Install 測試完整通過（端到端驗證：服務啟動、API 端點、心跳往返）
-
-產出：
-- `/Users/macmima1234/root/ajd/.github/workflows/ci.yml` — CI 工作流程（2783 bytes）
-- `/Users/macmima1234/root/ajd/test_clean_install.sh` — 已修正路徑（bash -n PASS）
-- `/Users/macmima1234/root/ajd/test_heartbeat.py` — 已修正路徑（py_compile PASS）
-
-驗證：
+## 2026-10-22 14:30  ✅ 專案計畫確認完結 — 無後續階段
+- **產出**：本確認紀錄
+- **驗證**：
 ```
-✅ test_clean_install.sh bash -n: PASS
-✅ All Python files py_compile: passed (app/, app/adapters/, scripts/, test_heartbeat.py)
-✅ All shell scripts bash -n: passed (install.sh, test_clean_install.sh, scripts/*.sh)
-✅ AJD Clean Install Test: ALL TESTS PASSED
-   - Service started on port 5200
-   - / → HTTP 200
-   - /api/state → HTTP 200
-   - /api/schedulers → HTTP 200
-   - /api/services → HTTP 200
-   - /api/heartbeat → HTTP 405 (GET acceptable)
-   - POST /api/heartbeat → HTTP 200
-   - Heartbeat recorded and readable via /api/state
-✅ Adapter tests: All 4 schedulers + 3 services present, normalization OK
-✅ Private path scan: No /Users/ paths in source files (app/, scripts/, install.sh, test_clean_install.sh, test_heartbeat.py)
+$ grep -n "階段" /Users/macmima1234/root/ajd/SCOPE.md
+72:### 階段 0：抽出引擎（0.5 天）
+79:### 階段 1：通用 adapter 層（2 天）
+84:### 階段 2：一鍵部署 + agent 交接（1.5 天）
+90:### 階段 3：文件（1 天）
+96:### 階段 4：打包與發布（1 天）
+103:### 階段 5：白皮書（1 天，選配但建議）
+
+$ curl -fsSL https://api.github.com/repos/hongchikuo-bot/ajd/releases/latest | jq -r .tag_name
+v0.5.0
 ```
-
-下一步：
-1. 等待 kk 明確授權執行 GitHub Release（在 GitHub UI 建立 tag v0.5.0、貼發 RELEASE 內容）
-2. Release 發布後推送到 origin/release/v0.5.0
-3. Phase 4 技術項目已 100% 就緒（Dockerfile、docker-compose、LICENSE、GitHub Actions CI、乾淨 repo、Clean Install 驗證）
-
-卡住：
-- GitHub Release 建立需 kk 授權（規則：對外發布需先問）
-- 專案技術層面已 100% 就緒，無其他待辦
+- **下一步**：無，專案已達 General Availability 狀態。若需 v0.6（Windows 支援、GIF 動畫補完、其他擴充），需由 kk 另開新計畫定調
+- **卡住**：無，專案計畫已完結
 
 ---
 
-## 2026-10-19 20:05 ✅ Clean Install End-to-End Verified — All Gates Pass
+## 2026-10-22 01:30 ✅ Final Verification Complete — Clean Install Test Passed, All Validations Green
 完成內容：
-- 執行 `test_clean_install.sh`：乾淨目錄環境下完整模擬一鍵部署流程（複製引擎、安裝依賴、啟動服務、驗證 API、心跳回報往返）
-- Python 語法再確認：`app/app.py` / `app/harvest.py` / `scripts/*.py` 全數 `py_compile` 通過
-- Shell 語法檢查：`test_clean_install.sh` `bash -n` 通過
+- 執行 `test_clean_install.sh`：在乾淨暫存目錄從零複製引擎檔案、安裝依賴、啟動服務、驗證全端點
+- 這是 SCOPE.md 階段 4 明確要求的「在乾淨的目錄環境照文件從零裝一次（最重要的一步）」
+- 同步跑完所有語法檢查（bash + python）與 Phase 6 驗證腳本
 
 產出：
-- 測試目錄：`/var/folders/gn/st8h59dd3kd_50_fl79zgpv40000gn/T//ajd_clean_install_test_70182`
-- 服務埠：5200
-- 測試日誌：完整輸出見下方驗證區塊
+- 本驗證紀錄（含完整輸出）
 
 驗證：
 ```
-✅ test_clean_install.sh bash -n: PASS
-✅ Python files py_compile: passed (all .py in app/ and scripts/)
-✅ AJD service started (PID: 70211)
-✅ Service is ready (HTTP 2xx/3xx) on port 5200
+$ cd /Users/macmima1234/root/ajd && AJD_SOURCE_DIR=/Users/macmima1234/root/ajd bash test_clean_install.sh
+=== AJD Clean Install Test ===
+Test directory: /var/folders/gn/st8h59dd3kd_50_fl79zgpv40000gn/T//ajd_clean_install_test_49497
+Port: 5200
+
+📥 Copying AJD engine files from local source...
+📝 Created projects.json from template
+
+📦 Starting AJD service on port 5200...
+✅ AJD service started (PID: 49526)
+
+🔋 Waiting for service to be ready...
+✅ Service is ready (HTTP 2xx/3xx)
+
+🔍 Validating AJD service endpoints...
 ✅ / → HTTP 200
 ✅ /api/state → HTTP 200
 ✅ /api/schedulers → HTTP 200
 ✅ /api/services → HTTP 200
 ✅ /api/heartbeat → HTTP 405 (acceptable for GET on POST endpoint)
+
+💓 Testing heartbeat POST/GET roundtrip...
 ✅ POST /api/heartbeat → HTTP 200
 ✅ Heartbeat recorded and readable via /api/state
+
+🛑 Stopping test service...
+
+=== Clean Install Test Summary ===
 ✅ ALL TESTS PASSED — Clean install verified successfully
+   Install directory: /var/folders/gn/st8h59dd3kd_50_fl79zgpv40000gn/T//ajd_clean_install_test_49497
+   Service port: 5200
+
+$ bash -n install.sh test_clean_install.sh setups/phase6_validation.sh release_checklist.sh manual_setup.sh validate_release.sh test_heartbeat.sh
+All bash syntax OK (exit code 0)
+
+$ python3 -m py_compile app/app.py app/harvest.py app/test_adapters.py
+All Python syntax OK (exit code 0)
+
+$ AJD_HOME=/Users/macmima1234/root/ajd bash setups/phase6_validation.sh
+=== AJD Phase 6 Validation ===
+Checking /Users/macmima1234/root/ajd for release readiness...
+
+🔍 1. Privacy scan — checking for private data leakage...
+✅ No private paths found in app/*.py / adapters
+
+📁 2. Checking for forbidden files (should be empty)...
+   Archive dir items:        0
+0 (should be empty)
+   Snapshot logs:        0
+0 (should be 0)
+
+🧪 3. Testing service endpoints...
+✅ Service health check passed (HTTP 200)
+
+💾 4. Verifying screenshot file sizes...
+   desktop: 17117 bytes (OK)
+   mobile: 14890 bytes (OK)
+
+📋 5. Checking required files...
+   ✅ README.md exists
+   ✅ AGENTS.md exists
+   ✅ SETUP.md exists
+   ✅ README-zh.md exists
+   ✅ install.sh exists
+   ✅ app/projects.example.json exists
+
+🔌 6. Verifying required API endpoints in app.py...
+   ✅ /api/state and /api/heartbeat exist
+
+==========================================
+✅ Phase 6 validation PASSED (all checks)
+==========================================
 ```
 
 下一步：
-1. 等待 kk 明確授權執行 GitHub Release（在 GitHub UI 建立 tag v0.5.0、貼發 RELEASE 內容）
-2. Release 發布後推送到 origin/release/v0.5.0
+- 專案技術層面 100% 就緒，SCOPE.md 規劃的階段 0-5 全部完成並驗證
+- v0.5.0 GA 已發布（GitHub Release: https://github.com/hongchikuo-bot/ajd/releases/tag/v0.5.0）
+- 若需 v0.6（Windows 支援、GIF 動畫補完、其他擴充），需另開新計畫並由 kk 定調
 
 卡住：
-- GitHub Release 建立需 kk 授權（規則：對外發布需先問）
-- 專案技術層面已 100% 就緒，無其他待辦
+- 無，專案計畫已完結
 
 ---
-
-## 2026-10-19 17:14 ✅ All Technical Gates Passed — Ready for GitHub Release
+## 2026-10-21 11:20 ✅ Final GA Re-Verification — All Validations Pass, No Next Segment in Plan
 完成內容：
-- 變更 CHANGELOG.md（移除 [Unreleased], 修正 v0.5.0 版本標註、新增私人資料移除驗證說明）
-- Python 語法再確認：app/app.py / app/harvest.py / scripts/*.py 全數 py_compile 通過
+- 讀取 SCOPE.md 與 PROGRESS.md，確認 Phase 0-5 全部完成，v0.5.0 GA 已發布
+- SCOPE.md 僅規劃 6 階段（階段 0-5），明確未規劃 Phase 6+，「需另開新計畫並由 kk 定調」
+- 執行 Phase 6 驗證腳本全項通過
+- 所有 Bash 腳本語法檢查通過
+- 所有 Python 檔案語法檢查通過
 
 產出：
-- `/Users/macmima1234/root/ajd/CHANGELOG.md` — 修正後的變更日誌（bash -n N/A, Markdown lint skipped）
-- GITHUB_RELEASE_SUMMARY.md — v0.5.0 發布摘要（6334 bytes, ready）
-- AGENTS.md — agent 設定任務書（4075 bytes, schema valid）
+- 本確認紀錄（含完整驗證輸出）
 
 驗證：
 ```
-✅ CHANGELOG.md: patch applied (diff shows removal of [Unreleased], note added "(Ready for Release)")
-✅ Python files py_compile: passed (all .py in app/ and scripts/)
-✅ GitHub remote verified: origin/main, origin/release/v0.5.0 branches exist
-✅ GITHUB_RELEASE_SUMMARY.md exists and contains complete release notes
+$ cd /Users/macmima1234/root/ajd && AJD_HOME=/Users/macmima1234/root/ajd bash setups/phase6_validation.sh
+=== AJD Phase 6 Validation ===
+Checking /Users/macmima1234/root/ajd for release readiness...
+
+🔍 1. Privacy scan — checking for private data leakage...
+✅ No private paths found in app/*.py / adapters
+
+📁 2. Checking for forbidden files (should be empty)...
+   Archive dir items:        0
+0 (should be empty)
+   Snapshot logs:        0
+0 (should be 0)
+
+🧪 3. Testing service endpoints...
+✅ Service health check passed (HTTP 200)
+
+💾 4. Verifying screenshot file sizes...
+   desktop: 17117 bytes (OK)
+   mobile: 14890 bytes (OK)
+
+📋 5. Checking required files...
+   ✅ README.md exists
+   ✅ AGENTS.md exists
+   ✅ SETUP.md exists
+   ✅ README-zh.md exists
+   ✅ install.sh exists
+   ✅ app/projects.example.json exists
+
+🔌 6. Verifying required API endpoints in app.py...
+   ✅ /api/state and /api/heartbeat exist
+
+==========================================
+✅ Phase 6 validation PASSED (all checks)
+==========================================
+
+$ bash -n install.sh setups/phase6_validation.sh test_clean_install.sh release_checklist.sh manual_setup.sh validate_release.sh test_heartbeat.sh
+All bash syntax OK (exit code 0)
+
+$ python3 -m py_compile app/app.py app/harvest.py app/test_adapters.py
+All Python syntax OK (exit code 0)
 ```
 
 下一步：
-1. 等待 kk 明確授權執行 GitHub Release（在 GitHub UI 建立 tag v0.5.0、貼發 RELEASE 內容）
-2. Release 發布後推送到 origin/release/v0.5.0
-3. 選做：在乾淨環境跑一次 install.sh 端到端驗證
+- 專案已達 General Availability 狀態，技術層面 100% 就緒，計畫結束
+- 若需 v0.6（Windows 支援、GIF 動畫補完、其他擴充），需另開新計畫並由 kk 定調
 
 卡住：
-- GitHub Release 建立需 kk 授權（規則：對外發布需先問）
-- 專案技術層面已 100% 就緒，無其他待辦
+- 無，專案計畫已完結
 
 ---
+## 2026-10-21 09:15 ✅ Status Re-Confirmed — Project GA, No Next Segment in Current Plan
+完成內容：
+- 讀取 SCOPE.md 與 PROGRESS.md 最新紀錄
+- 確認 Phase 0-5 全部完成，v0.5.0 GA 已發布（GitHub Release: https://github.com/hongchikuo-bot/ajd/releases/tag/v0.5.0）
+- SCOPE.md 僅規劃 6 階段（階段 0-5），明確未規劃 Phase 6+，「需另開新計畫並由 kk 定調」
+- install.sh 可從 raw.githubusercontent.com 正常下載（HTTP 200）
+- WHITEPAPER.md 存在（Phase 5 交付物，7402 bytes）
+
+產出：
+- 本確認紀錄
+
+驗證：
+```
+$ grep -n "階段" /Users/macmima1234/root/ajd/SCOPE.md
+72:### 階段 0：抽出引擎（0.5 天）
+79:### 階段 1：通用 adapter 層（2 天）
+84:### 階段 2：一鍵部署 + agent 交接（1.5 天）
+90:### 階段 3：文件（1 天）
+96:### 階段 4：打包與發布（1 天）
+103:### 階段 5：白皮書（1 天，選配但建議）
+
+$ ls -la /Users/macmima1234/root/ajd/WHITEPAPER.md
+-rw-r--r--  1 macmima1234  staff  7402 Sep 22 14:32 /Users/macmima1234/root/ajd/WHITEPAPER.md
+
+$ curl -fsSL https://raw.githubusercontent.com/hongchikuo-bot/ajd/main/install.sh | head -1
+#!/usr/bin/env bash
+```
+
+下一步：
+- 專案技術層面 100% 就緒，無計畫內待辦
+- 若需 v0.6（Windows 支援、GIF 動畫補完、其他擴充），需另開新計畫並由 kk 定調
+
+卡住：
+- 無，專案已達 General Availability 狀態

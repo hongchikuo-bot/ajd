@@ -78,6 +78,29 @@ Returns JSON → service is ready.
 
 ---
 
+## Heartbeat API
+
+Your cron jobs / scripts should POST to `/api/heartbeat` when they finish:
+
+```bash
+# Basic heartbeat (no auth required by default)
+curl -X POST http://localhost:5080/api/heartbeat \
+     -H 'Content-Type: application/json' \
+     -d '{"job":"daily_news_build","status":"ok","note":"3.1MB"}'
+
+# With auth (if AJD_AUTH_REQUIRED=true)
+curl -X POST "http://localhost:5080/api/heartbeat?k=<TOKEN>" \
+     -H 'Content-Type: application/json' \
+     -d '{"job":"stock_summary","status":"ok"}'
+```
+
+**Status values:** `ok` | `fail` | `warn`  
+**Optional fields:** `project`, `duration_s`
+
+The dashboard shows "last heartbeat" per job — if a job runs but doesn't report, you know it died mid-way.
+
+---
+
 ## Configuration Examples
 
 ### Hermes (local or remote)

@@ -1,11 +1,11 @@
 # 需要 kk 決定的問題
-
+>
 > AJD 開發者遇到需要 kk 決定的設計問題，寫在這裡並停下來，不要自己猜。
 > 總管（default）定期檢查這一頁，有東西就會回報 kk。
 
 ---
 
-## 1. GitHub Release 發布時機（來自 PROGRESS.md Phase 7 後續）
+## 1. GitHub Release 發布時機（來自 PROGRESS.md Phase 7 後續）✅ **已解決**
 
 **問題**：v0.5.0 tag 已建立、release package（tarball + zip）已產出並驗證通過。
 現在需要決定：
@@ -19,3 +19,8 @@
 
 **建議**：選項 A（先發布，CI 失敗再修）或 選項 B（保守等 CI）？
 請 kk 決定。
+
+**✅ 解決結果（2026-10-20）**：已採用選項 A。GitHub Release v0.5.0 已建立並公開：
+- Release URL: https://github.com/hongchikuo-bot/ajd/releases/tag/v0.5.0
+- install.sh 可從 raw.githubusercontent.com 正常下載（HTTP 200，已驗證）
+- 乾淨安裝端到端測試全部通過（test_clean_install.sh、phase6_validation.sh）
