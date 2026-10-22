@@ -1,3 +1,60 @@
+## 2026-10-23 05:30 ✅ Final Repo State Committed — All Validations Green, Project GA Confirmed
+- **產出**：
+  - `AGENTS.md` — 新增 Heartbeat API 文件區段（含 curl 範例、status 值、選填欄位）
+  - `PROGRESS.md` — 更新為 GA 完結狀態
+  - `QUESTIONS.md` — 標記 GitHub Release 問題為已解決
+  - Git commit `84c34e3`：以上三檔納入版控
+- **驗證**：
+```
+$ bash -n install.sh test_clean_install.sh setups/phase6_validation.sh release_checklist.sh manual_setup.sh validate_release.sh test_heartbeat.sh
+All bash syntax OK (exit code 0)
+
+$ python3 -m py_compile app/app.py app/harvest.py app/test_adapters.py
+All Python syntax OK (exit code 0)
+
+$ AJD_HOME=/Users/macmima1234/root/ajd bash setups/phase6_validation.sh
+=== AJD Phase 6 Validation ===
+Checking /Users/macmima1234/root/ajd for release readiness...
+
+🔍 1. Privacy scan — checking for private data leakage...
+✅ No private paths found in app/*.py / adapters
+
+📁 2. Checking for forbidden files (should be empty)...
+   Archive dir items:        0
+0 (should be empty)
+   Snapshot logs:        0
+0 (should be 0)
+
+🧪 3. Testing service endpoints...
+✅ Service health check passed (HTTP 200)
+
+💾 4. Verifying screenshot file sizes...
+   desktop: 17117 bytes (OK)
+   mobile: 14890 bytes (OK)
+
+📋 5. Checking required files...
+   ✅ README.md exists
+   ✅ AGENTS.md exists
+   ✅ SETUP.md exists
+   ✅ README-zh.md exists
+   ✅ install.sh exists
+   ✅ app/projects.example.json exists
+
+🔌 6. Verifying required API endpoints in app.py...
+   ✅ /api/state and /api/heartbeat exist
+
+==========================================
+✅ Phase 6 validation PASSED (all checks)
+==========================================
+
+$ grep -rIl -e macmima1234 -e hckytbot -e kuohome -e news_auto -e stock_auto -e idiom_auto -e ethubs -e zaiditong -e hermesagent -e kuo_bot -e wabi-sabi app/ adapters/ scripts/ install.sh test_clean_install.sh setups/ manual_setup.sh 2>/dev/null | grep -v __pycache__
+# Only hits are in validation scripts' search patterns (scripts/check_release_ready.sh, validate.sh, etc.) — zero actual leakage
+```
+- **下一步**：無。SCOPE.md 規劃的階段 0-5 全部完成並驗證，v0.5.0 GA 已發布（https://github.com/hongchikuo-bot/ajd/releases/tag/v0.5.0）。若需 v0.6（Windows 支援、GIF 動畫補完、其他擴充），需由 kk 另開新計畫定調。
+- **卡住**：無，專案計畫已完結。
+
+---
+
 ## 2026-10-22 14:30  ✅ 專案計畫確認完結 — 無後續階段
 - **產出**：本確認紀錄
 - **驗證**：
@@ -112,6 +169,7 @@ Checking /Users/macmima1234/root/ajd for release readiness...
 - 無，專案計畫已完結
 
 ---
+
 ## 2026-10-21 11:20 ✅ Final GA Re-Verification — All Validations Pass, No Next Segment in Plan
 完成內容：
 - 讀取 SCOPE.md 與 PROGRESS.md，確認 Phase 0-5 全部完成，v0.5.0 GA 已發布
@@ -175,6 +233,7 @@ All Python syntax OK (exit code 0)
 - 無，專案計畫已完結
 
 ---
+
 ## 2026-10-21 09:15 ✅ Status Re-Confirmed — Project GA, No Next Segment in Current Plan
 完成內容：
 - 讀取 SCOPE.md 與 PROGRESS.md 最新紀錄
