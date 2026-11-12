@@ -1,0 +1,139 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  syntax:
+    name: Syntax Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Shell syntax (install.sh)
+        run: bash -n install.sh
+      - name: Python syntax (app/)
+        run: |
+          python -m compileall -q app
+      - name: Shell syntax (setups/)
+        run: |
+          for f in setups/*.sh; do bash -n "$f"; done
+      - name: Shell syntax (test_clean_install.sh)
+        run: bash -n test_clean_install.sh
+
+  adapter-tests:
+    name: Adapter Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: pip install -r app/requirements.txt
+      - name: Run adapter tests
+        run: |
+          cd app && python3 test_adapters.py
+
+  clean-install:
+    name: Clean Install Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run clean install test
+        env:
+          AJD_SOURCE_DIR: ${{ github.workspace }}
+        run: |
+          chmod +x test_clean_install.sh
+          bash test_clean_install.sh
+
+  privacy-scan:
+    name: Privacy Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan for private data
+        run: |
+          # Check for any private paths/names that should not be in the repo
+          PRIVATE_PATTERNS="macmima1234|hckytbot|kuohome|news_auto|stock_auto|idiom_auto|ethubs|zaiditong|hermesagent|kuo_bot|wabi-sabi"
+          if grep -rIl -E "$PRIVATE_PATTERNS" app/ | grep -v __pycache__; then
+            echo "❌ Private data found in app/"
+            exit 1
+          fi
+          echo "✅ No private data leakage detected"
+
+  required-files:
+    name: Required Files Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify required files exist
+        run: |
+          REQUIRED_FILES=(
+            "README.md"
+            "AGENTS.md"
+            "SETUP.md"
+            "README-zh.md"
+            "install.sh"
+            "app/projects.example.json"
+            "app/app.py"
+            "app/harvest.py"
+            "LICENSE"
+          )
+          for f in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "❌ Missing required file: $f"
+              exit 1
+            fi
+          done
+          echo "✅ All required files present"
+
+  forbidden-files:
+    name: Forbidden Files Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check forbidden files/dirs are absent
+        run: |
+          # These should NOT exist in the release
+          FORBIDDEN=(
+            "data/archive"
+            "data/snapshots"
+            "data/backlog.json"
+            "access_token.txt"
+            "ideas.jsonl"
+            "heartbeats.jsonl"
+            "heartbeat_map.json"
+            "tunnel_url.txt"
+            "projects.json"
+          )
+          for f in "${FORBIDDEN[@]}"; do
+            if [ -e "$f" ]; then
+              echo "❌ Forbidden file/dir exists: $f"
+              exit 1
+            fi
+          done
+          # Check for unexpected log files in root/data (not in app/static/, venv/, logs/, test_clean_install/)
+          UNEXPECTED_LOGS=$(find . -name "*.log" | grep -v __pycache__ | grep -v ".github" | grep -v "venv/" | grep -v "logs/" | grep -v "test_clean_install/" | grep -v "data/logs/" || true)
+          if [ -n "$UNEXPECTED_LOGS" ]; then
+            echo "❌ Unexpected log files found:"
+            echo "$UNEXPECTED_LOGS"
+            exit 1
+          fi
+          # Check for unexpected PNG files (not in app/static/, docs/screenshots/, venv/, test_clean_install/)
+          UNEXPECTED_PNGS=$(find . -name "*.png" | grep -v __pycache__ | grep -v ".github" | grep -v "venv/" | grep -v "app/static/" | grep -v "docs/" | grep -v "test_clean_install/" || true)
+          if [ -n "$UNEXPECTED_PNGS" ]; then
+            echo "❌ Unexpected PNG files found:"
+            echo "$UNEXPECTED_PNGS"
+            exit 1
+          fi
+          echo "✅ No forbidden files present"

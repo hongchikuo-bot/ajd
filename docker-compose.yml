@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  ajd:
+    build: .
+    container_name: ajd
+    ports:
+      - "5080:5080"
+    environment:
+      - AJD_PORT=5080
+      - AJD_HOME=/app
+      - AJD_AUTH_REQUIRED=false
+    volumes:
+      - ./data:/app/data
+      - ./projects.json:/app/projects.json
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# Usage:
+#   docker compose up -d        # Start in background
+#   docker compose logs -f      # Follow logs
+#   docker compose down         # Stop and remove
+#   docker compose restart      # Restart

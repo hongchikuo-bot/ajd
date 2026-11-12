@@ -1,0 +1,9 @@
+This release includes:
+- ✅ AJD v0.4.0 - Complete one-command install from GitHub raw
+- 🧩 Adapter layer (schedulers & services)
+- 💓 Heartbeat mechanism for detecting failed crons
+- 🤖 Agent-friendly setup (auto-configures Hermes/Claude/Cursor)
+
+📂 Attachments:
+- docs/screenshot-desktop.png - Dashboard screenshot  
+- docs/screenshot-mobile.png - Mobile view screenshot
